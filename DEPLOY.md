@@ -5,19 +5,19 @@ Escrito el 2026-09-18, con el sitio ya completo: seis proyectos, dos perfiles y 
 
 ---
 
-## 0. El bloqueante
+## 0. Dónde estamos
 
-**El proyecto todavía no es un repositorio git.** No hay historial, no hay remoto y no hay
-nada que publicar desde ningún lado. Es el primer paso y no depende de ninguna decisión:
+El repositorio ya existe, con el primer commit hecho sobre la rama `main`, y el árbol ya
+está limpio de lo que no debía subir. **Lo único que falta es lo que solo podés hacer vos:
+crear el repositorio en GitHub y empujar.** Los comandos están en la sección 4.
 
-```bash
-git init
-git add .
-git commit -m "Portafolio cyberpunk: seis proyectos, dos perfiles, lab"
-```
+Decidido el 2026-09-18:
 
-Antes del primer `git add`, mirá la sección 3: hay archivos en el árbol que no conviene
-subir tal cual.
+| Decisión | Qué se eligió |
+|---|---|
+| Hosting | GitHub Pages, repositorio `agusg197.github.io` (sitio en la raíz del dominio) |
+| CV | se publican sin el teléfono; el mail y el LinkedIn quedan |
+| Correo en la página | visible, pero partido en el JSON y armado en tiempo de ejecución |
 
 ---
 
@@ -158,6 +158,19 @@ el código, y los tres repos de los proyectos ya están ahí.
 - [x] Los tres proyectos privados (`leadbox`, `crediclub`, `echo`) sin `repoUrl` y con el
       candado en la tarjeta.
 - [x] Las capturas de Leadbox, redactadas.
+- [x] **Las tipografías viajan con el sitio.** Están en `assets/google_fonts/` y
+      `GoogleFonts.config.allowRuntimeFetching = false` impide que el paquete salga a
+      buscarlas. La pantalla de carga usa las mismas, servidas desde `web/fonts/`. Antes
+      cada visita hacía tres pedidos a Google; ahora, ninguno. Verificado en el panel de red.
+- [x] **Los CV se publican sin el teléfono.** `tool/cv_sin_telefono.py` toma los originales
+      de `CVs/` (que no se suben) y escribe en `assets/cv/` una copia sin el número: no lo
+      tapa con un recuadro, lo saca del contenido, así no se puede seleccionar ni extraer.
+- [x] **El correo no está escrito entero en ningún asset.** El JSON guarda `emailUser` y
+      `emailHost` por separado y el enlace como `mailto:` a secas; la dirección se arma en
+      el modelo. En la página se ve igual y el botón de copiar funciona igual.
+- [x] **El retrato original salió de la raíz** a `design/`, que está ignorado.
+- [x] **Workflow de publicación** en `.github/workflows/deploy.yml`: corre `flutter analyze`
+      y `flutter test` antes de compilar, y si alguno falla no publica.
 
 ### Falta decidir
 
@@ -167,18 +180,15 @@ el código, y los tres repos de los proyectos ya están ahí.
 - [x] **Favicon e íconos de la app**: generados con `tool/render_icons.py` — marco con
       esquina cortada, la A con aberración cromática y la franja de peligro. Incluye las
       variantes maskable, que son las que usa Android al instalar la PWA.
-- [ ] **La imagen original del retrato quedó en la raíz**
-      (`ChatGPT Image Sep 18, 2026, 06_05_18 PM.png`, 2,5 MB). La versión recortada ya vive
-      en `assets/images/about/`. Conviene moverla a una carpeta `design/` o ignorarla: si
-      no, se sube un PNG de 2,5 MB que nadie usa.
-- [ ] **Los CV en PDF se publican enteros** (`assets/cv/`). Revisá que no tengan teléfono,
-      dirección ni documento: en un repo público quedan indexables para siempre.
-- [ ] **El mail está a la vista** en la tarjeta de identidad y en la terminal. Es a
-      propósito, pero cuenta con que lo van a rastrear los bots. La alternativa es un
-      formulario o un mail alias.
-- [ ] **Las fuentes se bajan de Google en cada visita** (`google_fonts`). Funciona, pero
-      agrega una dependencia externa y un parpadeo en la primera carga. Empaquetarlas en
-      `assets/fonts/` las vuelve locales y saca la petición.
+- [ ] **El `og:image` es una ruta relativa.** Funciona en la mayoría de los lectores, pero
+      LinkedIn a veces no la resuelve. Cuando el dominio exista, conviene pasarla a
+      `https://agusg197.github.io/og.png`. Es una línea en `web/index.html`.
+- [ ] **El dossier en PDF viaja en el repositorio** (`entrega/Dossier-Agustin.pdf`, 1,8 MB).
+      Si querés ofrecerlo como descarga desde la página hay que copiarlo a `web/`; si no,
+      puede quedar fuera del repositorio.
+- [ ] **Las tipografías pesan 1,3 MB** en total, casi todo Rajdhani, que trae devanagari
+      además de latino. Recortarlas a los caracteres que se usan las dejaría en una fracción,
+      pero hace falta `fonttools` y hay que rehacerlo cada vez que cambie el idioma.
 
 ### Conviene medir una vez publicado
 
@@ -204,29 +214,45 @@ El sitio va a ser público, así que el repositorio también (en Pages gratis no
 | `tool/redact_leadbox_shots.py` | apunta a rutas locales del repo privado de Leadbox. No filtra nada, pero deja el mapa de qué se tapó. Decidí si queda |
 | `.claude/` | configuración de la sesión; no molesta, pero no aporta |
 
-Un `.gitignore` con esto arriba de lo que ya hay:
+Ya está aplicado en `.gitignore`:
 
 ```gitignore
 # Material de trabajo que no va al sitio
 /CVs/
 /design/
-ChatGPT Image*.png
+/entrega/dossier.html
 ```
+
+El primer commit tiene 112 archivos y 6,9 MB. `build/`, `CVs/`, `design/` y el HTML
+intermedio del dossier quedaron afuera.
 
 ---
 
-## 4. El orden
+## 4. Lo que falta hacer
 
-1. Resolver los pendientes de la sección 2 que quieras resolver (og:image y favicon son los
-   que más se notan al compartir el link).
-2. Ajustar `.gitignore` y mover lo de la sección 3.
-3. `git init`, primer commit.
-4. Crear el repo `agusg197.github.io` en GitHub y pushear.
-5. Agregar el workflow, activar Pages con *Source: GitHub Actions*.
-6. Esperar el primer build (unos 3–4 minutos: la acción baja Flutter).
-7. Abrir el sitio en un teléfono y en una computadora, con los dos perfiles y los dos
-   idiomas.
-8. Recién ahí compartir el link.
+Todo lo anterior ya está en el commit. Estos cuatro pasos necesitan tu cuenta:
+
+**1. Crear el repositorio.** En GitHub, nuevo repositorio **público** llamado exactamente
+`agusg197.github.io`. Sin README, sin `.gitignore`, sin licencia: el árbol ya los trae y
+un repositorio con commits propios obliga a un merge innecesario.
+
+**2. Empujar.**
+
+```bash
+git remote add origin https://github.com/agusg197/agusg197.github.io.git
+git push -u origin main
+```
+
+**3. Activar Pages.** En el repositorio: *Settings → Pages → Build and deployment →
+Source: **GitHub Actions***. Sin esto el workflow corre y falla al publicar.
+
+**4. Esperar el primer build.** Tarda unos 4 minutos: la acción instala Flutter, corre
+`analyze`, corre los tests y recién entonces compila. El sitio queda en
+`https://agusg197.github.io`.
+
+Después, una vuelta de comprobación: los dos perfiles, los dos idiomas, un teléfono real, y
+abrir un proyecto directo por su URL (`/#/p/echo`) para confirmar que las rutas con `#`
+resuelven bien en Pages.
 
 ---
 
