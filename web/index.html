@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Portafolio de Agustín (@agusg197): desarrollo Flutter y sistemas con LLM. Proyectos interactivos, evals medidas y una interfaz cyberpunk.">
+  <meta name="theme-color" content="#07070C">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AGUSTÍN // Flutter &amp; AI Engineer">
+  <meta property="og:description" content="Seis proyectos que se recorren etapa por etapa, con sus números medidos. Flutter, Windows, y sistemas con LLM.">
+  <!-- Captura real del hero, 1200x630. Cuando haya dominio, conviene pasarla a
+       URL absoluta: algunos scrapers no resuelven rutas relativas. -->
+  <meta property="og:image" content="og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Hero del portafolio: el nombre AGUSTIN con aberracion cromatica y una tarjeta de proyecto">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="og.png">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="AGUSTÍN">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <!-- La pantalla de carga usa las mismas fuentes que la app, servidas desde acá:
+       una visita no depende de que Google responda. -->
+  <style>
+    @font-face { font-family: "Share Tech Mono"; font-display: block;
+      src: url("fonts/ShareTechMono-Regular.ttf") format("truetype"); }
+    @font-face { font-family: "Chakra Petch"; font-weight: 700; font-display: block;
+      src: url("fonts/ChakraPetch-Bold.ttf") format("truetype"); }
+  </style>
+
+  <title>AGUSTÍN // Flutter &amp; AI Engineer</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body { margin: 0; padding: 0; background: #07070C; height: 100%; overflow: hidden; }
+    body.ready { overflow: auto; }
+
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+      padding-left: clamp(20px, 8vw, 140px);
+      background: #07070C;
+      color: #E6F1FF; font-family: 'Share Tech Mono', monospace;
+      transition: opacity .35s steps(3, end);
+    }
+    #splash.hide { opacity: 0; pointer-events: none; }
+    /* Scanlines + grain */
+    #splash::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(to bottom, rgba(0,0,0,.22) 0 1px, transparent 1px 3px);
+    }
+    /* Dot grid, only on the right side */
+    .grid {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(0,240,255,.2) 1px, transparent 1.2px);
+      background-size: 28px 28px;
+      -webkit-mask-image: linear-gradient(90deg, transparent 35%, #000 70%);
+      mask-image: linear-gradient(90deg, transparent 35%, #000 70%);
+    }
+    /* Hex noise column on the right */
+    .hex {
+      position: absolute; right: clamp(16px, 6vw, 90px); top: -10%; bottom: -10%;
+      font-size: 11px; line-height: 1.5; letter-spacing: .1em; color: rgba(0,240,255,.16);
+      white-space: pre; overflow: hidden; animation: hexscroll 9s linear infinite;
+    }
+    @keyframes hexscroll { from { transform: translateY(0); } to { transform: translateY(-40%); } }
+    /* Alert sector on the right */
+    .sector {
+      position: absolute; right: 14%; top: 18%; width: 22vw; height: 18vh; max-width: 320px;
+      border: 1px solid rgba(255,42,109,.45); background: rgba(255,42,109,.05);
+      animation: sector 6s infinite steps(1,end);
+    }
+    .sector::before {
+      content: "SEC_1F // ALERT"; position: absolute; left: 4px; top: -16px;
+      font-size: 10px; letter-spacing: .15em; color: rgba(255,42,109,.85);
+    }
+    @keyframes sector { 0%,70%,100% { opacity: 1; } 72%,76% { opacity: 0; } 74% { opacity: 1; transform: translateX(6px); } }
+
+    .hazard {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 10px;
+      background: repeating-linear-gradient(-45deg, #FCEE0A 0 14px, #07070C 14px 28px);
+      opacity: .9;
+    }
+    .hazard.top { bottom: auto; top: 0; height: 4px; opacity: .5; }
+
+    .stamp {
+      display: inline-block; z-index: 1; margin-bottom: 10px; padding: 3px 10px;
+      background: #FCEE0A; color: #07070C; font-size: 11px; font-weight: 700; letter-spacing: .25em;
+      transform: rotate(-2deg);
+    }
+
+    .logo {
+      position: relative; z-index: 1;
+      font-family: 'Chakra Petch', 'Share Tech Mono', monospace; font-weight: 700;
+      font-size: clamp(48px, 12vw, 150px); line-height: .95; letter-spacing: -.02em; color: #E6F1FF;
+      animation: jitter 2.6s infinite steps(1,end);
+    }
+    /* Hard slice glitches: same color, displaced, no smooth RGB */
+    .logo::before, .logo::after {
+      content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%;
+      color: #E6F1FF; background: #07070C; opacity: 0;
+    }
+    .logo::before { clip-path: inset(18% 0 62% 0); animation: sliceA 2.6s infinite steps(1,end); }
+    .logo::after  { clip-path: inset(66% 0 12% 0); animation: sliceB 3.4s infinite steps(1,end); }
+    @keyframes sliceA { 0%,86%,100% { opacity: 0; } 88% { opacity: 1; transform: translateX(-14px); } 91% { opacity: 1; transform: translateX(9px); color:#00F0FF; } 93% { opacity: 0; } }
+    @keyframes sliceB { 0%,78%,100% { opacity: 0; } 80% { opacity: 1; transform: translateX(16px); } 83% { opacity: 1; transform: translateX(-8px); color:#FCEE0A; } 85% { opacity: 0; } }
+    @keyframes jitter { 0%,87%,100% { transform: translate(0); } 89% { transform: translate(-3px,1px); } 90% { transform: translate(2px,-1px); } }
+    /* Black redaction bars sweeping over the logo */
+    .redact { position: absolute; left: -4%; width: 108%; height: 12%; background: #07070C; z-index: 2; opacity: 0; }
+    .redact.a { top: 30%; animation: redA 2.6s infinite steps(1,end); }
+    .redact.b { top: 58%; height: 8%; animation: redB 3.4s infinite steps(1,end); }
+    @keyframes redA { 0%,60%,100% { opacity: 0; } 62%,66% { opacity: 1; } 64% { transform: translateX(3%); } }
+    @keyframes redB { 0%,40%,100% { opacity: 0; } 42%,45% { opacity: 1; } }
+    .logo-wrap { position: relative; z-index: 1; }
+
+    /* Segmented progress */
+    .segs { z-index: 1; display: flex; gap: 4px; margin-top: 26px; }
+    .seg { width: 14px; height: 10px; background: #1B1E33; animation: segon .1s steps(1,end) forwards; }
+    @keyframes segon { to { background: #FCEE0A; } }
+
+    .log { z-index: 1; margin-top: 16px; font-size: 12px; letter-spacing: .08em; color: #8A93B2; min-height: 5.8em; }
+    .log span { display: block; opacity: 0; animation: fadein .05s steps(1,end) forwards; }
+    .log span:nth-child(1) { animation-delay: .2s; }
+    .log span:nth-child(2) { animation-delay: .7s; }
+    .log span:nth-child(3) { animation-delay: 1.2s; color: #FF2A6D; }
+    .log span:nth-child(4) { animation-delay: 1.7s; }
+    .log span:nth-child(5) { animation-delay: 2.3s; color: #FCEE0A; }
+    @keyframes fadein { to { opacity: 1; } }
+
+    .side {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%) rotate(180deg);
+      writing-mode: vertical-rl; font-size: 10px; letter-spacing: .4em; color: #4B5273;
+    }
+  </style>
+</head>
+<body>
+  <div id="splash" aria-hidden="true">
+    <div class="hazard top"></div>
+    <div class="grid"></div>
+    <div class="hex" id="hex"></div>
+    <div class="sector"></div>
+    <div class="side">PORTFOLIO // v1.0 // 2026</div>
+
+    <div class="stamp">// SYSTEM BOOT</div>
+    <div class="logo-wrap">
+      <div class="logo" data-text="AGUSG197">AGUSG197</div>
+      <div class="redact a"></div>
+      <div class="redact b"></div>
+    </div>
+    <div class="segs" id="segs"></div>
+    <div class="log">
+      <span>&gt; booting kernel...</span>
+      <span>&gt; loading shaders...</span>
+      <span>&gt; ERR 0x1F // signal lost — retry</span>
+      <span>&gt; mounting portfolio://</span>
+      <span>&gt; access granted_</span>
+    </div>
+
+    <div class="hazard"></div>
+  </div>
+
+  <script>
+    (function () {
+      // Progress segments.
+      var segs = document.getElementById('segs');
+      for (var i = 0; i < 18; i++) {
+        var s = document.createElement('div');
+        s.className = 'seg';
+        s.style.animationDelay = (0.15 + i * 0.13) + 's';
+        segs.appendChild(s);
+      }
+      // Hex column.
+      var hex = document.getElementById('hex'), out = '', chars = '0123456789ABCDEF';
+      for (var r = 0; r < 140; r++) {
+        out += chars[Math.floor(Math.random() * 16)] + chars[Math.floor(Math.random() * 16)] + '\n';
+      }
+      hex.textContent = out;
+    })();
+    (function () {
+      var done = false;
+      function dismiss() {
+        if (done) return;
+        done = true;
+        var s = document.getElementById('splash');
+        if (!s) return;
+        document.body.classList.add('ready');
+        s.classList.add('hide');
+        setTimeout(function () { s.remove(); }, 400);
+      }
+      window.addEventListener('flutter-first-frame', dismiss);
+      // Safety net: if the engine never reports a frame, say so instead of
+      // leaving the visitor staring at a boot screen forever. The splash is
+      // NOT removed here: doing that would just show a blank page.
+      setTimeout(function () {
+        if (done) return;
+        var log = document.querySelector('#splash .log');
+        if (!log) return;
+        var line = document.createElement('span');
+        line.style.color = '#FF2A6D';
+        line.style.opacity = '1';
+        line.style.animation = 'none';
+        line.textContent = '> ERR // el motor no respondió — recargá la página';
+        log.appendChild(line);
+      }, 20000);
+    })();
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/PageMode /UseNone
+/Pages 2 0 R
+/Type /Catalog
+>>
+endobj
+2 0 obj
+<<
+/Count 2
+/Kids [ 3 0 R 9 0 R ]
+/Type /Pages
+>>
+endobj
+3 0 obj
+<<
+/Contents 4 0 R
+/MediaBox [ 0 0 612 792 ]
+/Parent 2 0 R
+/Resources <<
+/Font 5 0 R
+/ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+>>
+endobj
+4 0 obj
+<<
+/Length 7749
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 60 722.8 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 3 Tm /F2 17 Tf 20 TL (RENZO AGUSTIN GUTIERREZ) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 707.8 cm
+q
+BT 1 0 0 1 0 2.5 Tm 13 TL /F2 10.5 Tf .266667 .266667 .266667 rg (Senior Flutter Developer | Mobile Engineer \(Android & iOS\)) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 680.8 cm
+q
+BT 1 0 0 1 0 15 Tm 12 TL /F1 9 Tf .266667 .266667 .266667 rg (C\363rdoba, Argentina  ) Tj (|) Tj (  agustingutierrez197@gmail.com  ) Tj (|) Tj (  linkedin.com/in/agusg197  ) Tj (|) Tj ( ) Tj T* (github.com/agusg197) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 657.8 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 2 Tm /F2 11 Tf 13 TL (PROFESSIONAL SUMMARY) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 655.1 cm
+q
+.7 w
+1 J
+.6 .6 .6 RG
+n 0 0 m 492 0 l S
+Q
+Q
+q
+1 0 0 1 60 576.1 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 65.5 Tm /F1 9.5 Tf 12.5 TL (Senior Flutter Developer with 5+ years building, shipping and maintaining production Android and iOS applications,) Tj T* (and 7+ years in software development overall. Delivered core banking features for a Mexican fintech app handling) Tj T* (100,000+ monthly transactions with a 99.8%+ crash-free rate. Expert in Dart, state management \(Riverpod, BLoC,) Tj T* (Provider\), Clean Architecture, REST API and Firebase integration, CI/CD automation with Fastlane, and end-to-end) Tj T* (release ownership on the App Store and Google Play. Experienced mobile lead in remote, distributed Agile/Scrum) Tj T* (teams.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 553.1 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 2 Tm /F2 11 Tf 13 TL (CORE SKILLS) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 550.4 cm
+q
+.7 w
+1 J
+.6 .6 .6 RG
+n 0 0 m 492 0 l S
+Q
+Q
+q
+1 0 0 1 60 533.9 cm
+q
+BT 1 0 0 1 0 3 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Mobile:) Tj /F1 9.5 Tf ( Flutter, Dart, Android, iOS, Material Design, Cupertino, responsive/adaptive layouts, animations) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 518.9 cm
+q
+BT 1 0 0 1 0 3 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (State Management:) Tj /F1 9.5 Tf ( Riverpod, BLoC, Cubit, Provider, Redux, MobX) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 503.9 cm
+q
+BT 1 0 0 1 0 3 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Architecture:) Tj /F1 9.5 Tf ( Clean Architecture, MVVM, feature-first modular structure, dependency injection, SOLID) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 476.4 cm
+q
+BT 1 0 0 1 0 15.5 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Backend & Integration:) Tj /F1 9.5 Tf ( RESTful APIs, JSON, Firebase \(Authentication, Firestore, Storage\), SQLite, local) Tj T* (persistence) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 461.4 cm
+q
+BT 1 0 0 1 0 3 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Testing & Quality:) Tj /F1 9.5 Tf ( Unit testing, widget testing, code review, performance profiling \(Flutter DevTools\)) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 446.4 cm
+q
+BT 1 0 0 1 0 3 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (CI/CD & Tools:) Tj /F1 9.5 Tf ( Git, GitHub, Bitbucket Pipelines, Fastlane, Azure \(SSH\), GitHub Copilot, Claude) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 431.4 cm
+q
+BT 1 0 0 1 0 3 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Release Management:) Tj /F1 9.5 Tf ( App Store Connect, Google Play Console, versioning, store submission and review) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 416.4 cm
+q
+BT 1 0 0 1 0 3 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Methodologies:) Tj /F1 9.5 Tf ( Agile, Scrum, sprint planning, remote cross-functional collaboration) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 393.4 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 2 Tm /F2 11 Tf 13 TL (PROFESSIONAL EXPERIENCE) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 390.7 cm
+q
+.7 w
+1 J
+.6 .6 .6 RG
+n 0 0 m 492 0 l S
+Q
+Q
+q
+1 0 0 1 60 371.7 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 3 Tm /F2 10 Tf 13 TL (Flutter Developer \(Contract\) \227 Crediclub, Digital Bank \(via Zafirus\)) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 359.2 cm
+q
+.266667 .266667 .266667 rg
+BT 1 0 0 1 0 2.5 Tm /F3 9 Tf 11.5 TL (Remote, Mexico | November 2025 \226 June 2026 \(held in parallel with Leadbox Inc.\)) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 331.2 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL (Developed and shipped core banking features for transfers and payments in a production Flutter app supporting) Tj T* (100,000+ active monthly transactions across Mexico.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 303.7 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL (Architected feature-level state management with Riverpod, eliminating redundant widget rebuilds and helping) Tj T* (keep the crash-free rate above 99.8%.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 276.2 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL -0.110944 Tw (Delivered 6 production releases to the App Store and Google Play in 8 months, meeting every scheduled date and) Tj T* 0 Tw (passing the bank's security and compliance review on each submission.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 248.7 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL (Built new screens and user flows with Material Design and Cupertino widgets, respecting native platform) Tj T* (conventions on Android and iOS.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 221.2 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL (Integrated Firebase services \(Authentication, Firestore, Storage\) and RESTful APIs with the bank's backend) Tj T* (infrastructure in a regulated fintech environment.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 193.7 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL (Collaborated daily with Product, Design, QA and backend engineers; reference available from the Product) Tj T* (Manager on request.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 174.7 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 3 Tm /F2 10 Tf 13 TL (Flutter Developer \227 Mobile Lead \227 Leadbox Inc.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 162.2 cm
+q
+.266667 .266667 .266667 rg
+BT 1 0 0 1 0 2.5 Tm /F3 9 Tf 11.5 TL (Remote | February 2021 \226 Present) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 134.2 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL (Lead the mobile application area: sprint planning, technical decisions, code review, estimation and release) Tj T* (delivery in an Agile/Scrum workflow.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 106.7 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL (Leading the migration of a complex web platform \(Leadbox-OS\) to a cross-platform Flutter application for Android) Tj T* (and iOS, defining a scalable state management architecture with Riverpod.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 79.2 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL -0.129967 Tw (Built CI/CD pipelines for mobile builds and store deployment with Bitbucket Pipelines and Fastlane, cutting manual) Tj T* 0 Tw (release overhead by ~50%.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 51.7 cm
+q
+BT 1 0 0 1 4 15.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 15.5 Tm /F1 9.5 Tf 12.5 TL (Refactored the core architecture into modular BLoC/Provider patterns, reducing code duplication and accelerating) Tj T* (integration of new backend REST APIs.) Tj T* ET
+Q
+Q
+ 
+
+endstream
+endobj
+5 0 obj
+<<
+/F1 6 0 R
+/F2 7 0 R
+/F3 8 0 R
+>>
+endobj
+6 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+7 0 obj
+<<
+/BaseFont /Helvetica-Bold
+/Encoding /WinAnsiEncoding
+/Name /F2
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+8 0 obj
+<<
+/BaseFont /Helvetica-Oblique
+/Encoding /WinAnsiEncoding
+/Name /F3
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+9 0 obj
+<<
+/Contents 10 0 R
+/MediaBox [ 0 0 612 792 ]
+/Parent 2 0 R
+/Resources <<
+/Font 5 0 R
+/ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+>>
+endobj
+10 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ]
+/Length 1999
+>>
+stream
+Gb!<O?W.n&'ZJu*'_eF[VQl-42E%@,":QS6q#aB]cL<#nj]r&WC*RFIc?/p9H_g<QLQZL1l*N9XZAu=CC!Ss:GHZh$LS$!mb;5k/1YOpM.-f8t6.)nuUtLtZZ^m.=dJD-cO2fSWH[sl@/afeIL(s$!pM#pn1\ANmIK+[Rl:$K'kYG9D;!U.\O*>=3_(YB@qmP+55%!O#J+P8el]bSV$R[b+8]7D]B8We>L*_GS>?>a@dY[9q@X1X&o3ZOX;jf"Mgq+7)T-tA@2Cg8Z+8.YM#Z:AJGN\#qbH5kak;I.%p-#fCrZeNY\Pk"f%e;.XgT?8$;K)*sR<kXG??bm<eN;*Jd;d8OhpH_)g$il6`SsoH?"A1S>&&,bJ6j"SSk8Zd3N$@m8>TU]NYO'S0<r`lVO0r2Z4P6F7YKrVU0P`jN4>-^g"tp@F)D,e?KkQ?Gq0F/^F#:b78)lC>rk*$Xnc2<'H]uF0\S)O33'ssHi!AJ:heC^K.mSJS/Rs1c32ldWO*4kY5A/PSJiXcbIM<A`r88p1#;g7J&_-MqJ[DP3_0?6%/Yk3+hE=oSY4l=O8\r=N:<eg2(h,W4l(d>;+fr%1"Lo2h[Z4i09Nd_/]F5^;(0Oh8A*ja\eL*)cQ)%<WL0B52VrPmjP`9J5$&A?[I*5cL)93)\$;FJ42?NZpR2\!S%.-EG`0UA*;h<"%_e=9=eUMp9^$(/K/GEMK3hQ`<bfV8>u9iRcehh!_sN:hrg?:+SQsDTV4s_DkKPF05<*o!.(a"M'`r*\`>]b&^<EDu-`d^>c[_S7Ydmrno;0gbFhk;QV_g%?$l%DTqZB#A-?JY&hKPb3[E6)[2VqVN"[$tNJdS8;#``>\1Ljb_glnJ(`VbG$U]%B-=+A,jBT$.tPNh.Q2E@HiQ`jcU;tHa^mV';tR$JS8\UuQ8^R&RpH+5`,iF*g079>OD0cY#,pa5.K:m#lhfq5\5U>p@Y1?9lYmL#(\5r6FRNCS!S<0[sX:O@3#$qeohHI40h<>Y2uDW;ZHU2KT6Z2"i<)W7r^4=HaCUWRkKlYMV.V+m]%ET:q_K6fIP0;WD__taZD"*YO/=9f&N7a"%0"QK/q]@VZm0Q);r<8m$OHc/Mf4YXo(+3;Zk^gnKiP%.[m<p2Kh4h)2s'Uf4+M/C\`(A^KCV,P8Cps<D&4DRRWgP_H;g(G.BkuKQu];=q'Ie7Xr/E!M:O:uhuSp>rb+Ud6fg6dZ5nUBlgV\bL0@:eGL'T1e"+\Q9sP*Qb;k\ZjrlM0dk2@E*]7TLIE1f`_]72qqWV5Cdg2iK5l6mMe$W*Ir?W]]&a;@=b>/!!::$5MP,cD$JJWU"`0:s8s!)=`sQ\PV3seUqeD?'QDrH/Y3e0KaTkM6U?=iFm5S<#HsVPSrPu]!+X/[#fJq+B9R';'rj$*EEI_UD>j7\KuJ>^aL$Dk<kQ/JghsD^6,%-NgdpgD(M?E03ZnH^8-O`+[+=\+f'nogn2a++(L`cmN6=;pherTT30)"?b?R*R[Mf@h?>\oZ!QSbqY656!\GI&)iY^F)h:(W9UiRUN(09loA=V9J6(mU6=Rk"D,LV[iqNlLTgMt#!k!eoNL*,Gcj6K%Bj8u.MmZ\.a>0:<(o=:DOn$G_2-6F!!lq(<T_cIafViqeI"^`3l+m0_Q.EhmF"+o'[)-pH#Y>X=!s)SE3?F-*_hV7QHFM;NK2M9U_8c@Z45==%PUhl4\4]LA)?EF92PT=;%C#S+9gmpH@OhsokU(9rrWG0hICLPmCj@M9q^Mq.aZ.Mu%\0c?f*Yk@4bNZ;_AKY\i?Vj4,fX7CXltdnc<$;!c)M9a^6U%*\$"2T=(gu^c6cW;X6k+dhq#+DHD>eDcZW;YY7?uXi&Z`i::ViV/oCGIm!:2Q/U@TfDZruTBs"RCZaM4%J]Aj\&[aco(+:Q\$.o2H,pXqRP["FLLO]D/TY@I!GeX/?$mM.\AH?G:.7eM"q:*D!Z*ZK/gYarV_Il*ULS#qEoC_)3@DHU?%iq9S'`~>
+endstream
+endobj
+11 0 obj
+<<
+/Author (RENZO AGUSTIN GUTIERREZ)
+/CreationDate (D\07220260822211019\05300\04700\047)
+/Creator (\050unspecified\051)
+/Keywords ()
+/ModDate (D\07220260822211019\05300\04700\047)
+/Producer (ReportLab PDF Library \055 \050opensource\051)
+/Subject (\050unspecified\051)
+/Title (RENZO AGUSTIN GUTIERREZ)
+/Trapped (\057False)
+>>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000015 00000 n 
+0000000083 00000 n 
+0000000148 00000 n 
+0000000337 00000 n 
+0000008138 00000 n 
+0000008189 00000 n 
+0000008296 00000 n 
+0000008408 00000 n 
+0000008523 00000 n 
+0000008713 00000 n 
+0000010805 00000 n 
+trailer
+<<
+/Size 12
+/Root 1 0 R
+/Info 11 0 R
+/ID [ <dacdbcdaa6d7caf1f700b2b81392d75b> <dacdbcdaa6d7caf1f700b2b81392d75b> ]
+>>
+startxref
+11147
+%%EOF

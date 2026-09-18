@@ -1,0 +1,60 @@
+# Publica el sitio en GitHub Pages en cada push a main.
+#
+# El repositorio se llama `agusg197.github.io`, así que el sitio vive en la raíz
+# del dominio y NO hace falta `--base-href`. Si algún día se mueve a un repo con
+# otro nombre, hay que compilar con `--base-href /<nombre-del-repo>/` o la
+# página carga en blanco: todas las rutas relativas colgarían del lugar
+# equivocado.
+#
+# Antes del primer deploy, una sola vez: Settings → Pages → Source: GitHub Actions.
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Si se empujan dos commits seguidos, el segundo cancela al primero: no tiene
+# sentido publicar una versión que ya quedó vieja.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # Las mismas dos puertas que uso localmente. Si alguna falla, no se
+      # publica: es preferible que el sitio quede como está a que quede roto.
+      - run: flutter analyze
+      - run: flutter test
+
+      - run: flutter build web --release
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

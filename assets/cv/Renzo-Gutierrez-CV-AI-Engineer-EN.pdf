@@ -1,0 +1,306 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/PageMode /UseNone
+/Pages 2 0 R
+/Type /Catalog
+>>
+endobj
+2 0 obj
+<<
+/Count 2
+/Kids [ 3 0 R 9 0 R ]
+/Type /Pages
+>>
+endobj
+3 0 obj
+<<
+/Contents 4 0 R
+/MediaBox [ 0 0 612 792 ]
+/Parent 2 0 R
+/Resources <<
+/Font 5 0 R
+/ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+>>
+endobj
+4 0 obj
+<<
+/Length 7302
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 60 722.8 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 3 Tm /F2 17 Tf 20 TL (RENZO AGUSTIN GUTIERREZ) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 707.8 cm
+q
+BT 1 0 0 1 0 2.5 Tm 13 TL /F2 10.5 Tf .266667 .266667 .266667 rg (AI Engineer | LLM Integration, Evals & Reliability | Mobile Background) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 680.8 cm
+q
+BT 1 0 0 1 0 15 Tm 12 TL /F1 9 Tf .266667 .266667 .266667 rg (C\363rdoba, Argentina  ) Tj (|) Tj (  agustingutierrez197@gmail.com  ) Tj (|) Tj (  linkedin.com/in/agusg197  ) Tj (|) Tj ( ) Tj T* (github.com/agusg197) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 657.8 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 2 Tm /F2 11 Tf 13 TL (PROFESSIONAL SUMMARY) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 655.1 cm
+q
+.7 w
+1 J
+.6 .6 .6 RG
+n 0 0 m 492 0 l S
+Q
+Q
+q
+1 0 0 1 60 576.1 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 65.5 Tm /F1 9.5 Tf 12.5 TL -0.042767 Tw (AI Engineer with 7+ years in software development and 5+ years shipping production mobile applications, specialized) Tj T* 0 Tw (in building LLM-powered products end to end: prompt design, structured outputs with strict schema validation,) Tj T* (hallucination mitigation, custom evaluation harnesses, and latency/cost-driven model selection. Built two complete AI) Tj T* (pipelines \227 speech-to-structured-data and OCR-to-structured-markdown \(hybrid on-device + cloud\) \227 each with) Tj T* (eval frameworks whose measured results changed the technical roadmap. Daily user of AI-assisted development) Tj T* (workflows \(Claude, GitHub Copilot\) and experienced technical lead in remote Agile teams.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 553.1 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 2 Tm /F2 11 Tf 13 TL (AI / LLM SKILLS) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 550.4 cm
+q
+.7 w
+1 J
+.6 .6 .6 RG
+n 0 0 m 492 0 l S
+Q
+Q
+q
+1 0 0 1 60 508.9 cm
+q
+BT 1 0 0 1 0 28 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (LLM Integration:) Tj /F1 9.5 Tf ( Gemini API, Anthropic \(Claude\) API, prompt engineering, system instructions, structured output) Tj T* (with response schemas \(JSON Schema / OpenAPI dialects\), temperature-0 determinism, token budgeting) Tj T* (\(maxOutputTokens\)) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 468.9 cm
+q
+BT 1 0 0 1 0 28 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Reliability & Safety:) Tj /F1 9.5 Tf ( hallucination mitigation \(layered: prompt, schema, strict parsing, human-in-the-loop UI\), strict) Tj T* (output validation with warning telemetry, graceful failure handling, API-key security \(secure storage, log redaction) Tj T* (with tests\)) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 441.4 cm
+q
+BT 1 0 0 1 0 15.5 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Evaluation:) Tj /F1 9.5 Tf ( custom eval harnesses, fixture-based golden sets, micro-averaged metrics \(precision/recall on nullable) Tj T* (fields, exact-value accuracy, WER\), model matrix runs, latency benchmarking \(p50\), free-tier quota management) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 413.9 cm
+q
+BT 1 0 0 1 0 15.5 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Cost Engineering:) Tj /F1 9.5 Tf ( hybrid on-device + cloud architectures, token accounting and cost-weighted eval matrices,) Tj T* (response caching, throttling and exponential backoff on 429/5xx, quota-aware design) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 386.4 cm
+q
+BT 1 0 0 1 0 15.5 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Perception Pipelines:) Tj /F1 9.5 Tf ( on-device and cloud speech-to-text, on-device OCR \(Google ML Kit\), document layout) Tj T* (analysis \(XY-cut page segmentation\), two-stage perception-to-LLM pipelines with per-stage observability) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 358.9 cm
+q
+BT 1 0 0 1 0 15.5 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Security:) Tj /F1 9.5 Tf ( prompt-injection mitigation \(system instructions separated from untrusted input, test-enforced\), API keys in) Tj T* (headers not URLs, secure key storage \(Android Keystore\), log redaction) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 331.4 cm
+q
+BT 1 0 0 1 0 15.5 Tm 12.5 TL /F2 9.5 Tf .101961 .101961 .101961 rg (Engineering:) Tj /F1 9.5 Tf ( Dart, Flutter, interface-driven architecture, dependency injection, SQLite, REST APIs, Firebase, Git,) Tj T* (CI/CD \(Bitbucket Pipelines, Fastlane\), 340+ automated tests across projects) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 308.4 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 2 Tm /F2 11 Tf 13 TL (AI PROJECTS) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 305.7 cm
+q
+.7 w
+1 J
+.6 .6 .6 RG
+n 0 0 m 492 0 l S
+Q
+Q
+q
+1 0 0 1 60 286.7 cm
+q
+.101961 .101961 .101961 rg
+BT 1 0 0 1 0 3 Tm /F2 10 Tf 13 TL (Trino \227 Voice-to-Structured-Data LLM Pipeline \(creator\)) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 274.2 cm
+q
+.266667 .266667 .266667 rg
+BT 1 0 0 1 0 2.5 Tm /F3 9 Tf 11.5 TL (Personal project | Flutter / Dart + Gemini API | github.com/agusg197) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 233.7 cm
+q
+BT 1 0 0 1 4 28 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 28 Tm /F1 9.5 Tf 12.5 TL (Built a production-quality Android app that converts free-form Spanish speech into validated expense records in) Tj T* -0.107594 Tw (under 4 seconds: on-device/cloud STT feeding an LLM interpreter with structured output \(~7,000 lines of Dart, 240) Tj T* 0 Tw (tests, clean static analysis, running on real hardware\).) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 193.7 cm
+q
+BT 1 0 0 1 4 28 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 28 Tm /F1 9.5 Tf 12.5 TL (Designed a 4-layer hallucination-mitigation system \(\223honesty system\224\): explicit prompt rules, nullable response) Tj T* -0.052647 Tw (schema, a strict parser that discards and logs every invalid field, and a confidence-state UI with mandatory human) Tj T* 0 Tw (confirmation \227 achieving 0 invented fields across the full eval set.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 141.2 cm
+q
+BT 1 0 0 1 4 40.5 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 40.5 Tm /F1 9.5 Tf 12.5 TL (Built a from-scratch evaluation framework: 18 adversarial hand-written fixtures \(router traps, relative dates, local) Tj T* (slang, mid-sentence corrections\) and 6 micro-averaged metrics, including precision AND recall on empty fields,) Tj T* -0.1306 Tw (exact amount accuracy and parser-warning counts \227 designed so zero-denominator cases report null instead of a) Tj T* 0 Tw (misleading 100%.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 101.2 cm
+q
+BT 1 0 0 1 4 28 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 28 Tm /F1 9.5 Tf 12.5 TL (Ran a model-comparison matrix \(3 Gemini models, 37 real API calls\) that falsified the project's core hypothesis:) Tj T* -0.0845 Tw (the cheapest model scored 100% on all metrics at 838 ms p50 latency \(5\22610x faster than alternatives\), eliminating) Tj T* 0 Tw (a planned multi-model \223ladder\224 and its cost.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 60 61.2 cm
+q
+BT 1 0 0 1 4 28 Tm /F1 10 Tf 12 TL .101961 .101961 .101961 rg (\177) Tj ET
+.101961 .101961 .101961 rg
+BT 1 0 0 1 14 28 Tm /F1 9.5 Tf 12.5 TL (Discovered through targeted probing that cloud transcription models hallucinate full sentences from non-speech) Tj T* (audio while the on-device recognizer correctly returns no-match \227 a finding no planned metric would have) Tj T* (caught, which reshaped the pipeline's risk model.) Tj T* ET
+Q
+Q
+ 
+
+endstream
+endobj
+5 0 obj
+<<
+/F1 6 0 R
+/F2 7 0 R
+/F3 8 0 R
+>>
+endobj
+6 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+7 0 obj
+<<
+/BaseFont /Helvetica-Bold
+/Encoding /WinAnsiEncoding
+/Name /F2
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+8 0 obj
+<<
+/BaseFont /Helvetica-Oblique
+/Encoding /WinAnsiEncoding
+/Name /F3
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+9 0 obj
+<<
+/Contents 10 0 R
+/MediaBox [ 0 0 612 792 ]
+/Parent 2 0 R
+/Resources <<
+/Font 5 0 R
+/ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+>>
+endobj
+10 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ]
+/Length 2840
+>>
+stream
+Gb!#]?$"K9&q/qEoF"[]@QTl?@sA>P?iqRo9sRd2>Bq)Z,C,)%,;c/ThP0_QhpXBEA([ku.4?f67BntDmcco`qQu&lJA76H)&G]EY%d?I7+%+!;i8Tn0jUF"nb&*,:SMI_F?m1KUd)_:gr9-`M_P\8l+./H&,c#dI_$U1UA6YBgU52&Etcf1cfk3-S+u/hgK(%c1\:Skf\u-FF\[fLQ\Epa-6suO:/IC_=%b"6(F8H[[AM[#MIN>Z<>EA"UZnY^;Jo(',/0N"iTmM,0n3nUSrp;mMpg,jDecOqB(A@TSs@U5If1ARa?,MoQ'J.%]tHHk47*[)WDqh"WKWo04^89T&p^Baq2uN$arNYtlE"W?^8BB.pLG%YmnPE5Y2%b.6YW+S<6:3/Zu3(1[Y._&@lUHG&jC"nYJU]f9Aq96.^u3OI$/SjEC.-TmE^iQ7(eb3MVMa,.kUYc?:_n^nb9@`:\Uc(VZ0qJ"uH\/)7CA!q93*E56]jOLGSd<]r4mskIPlu,=1LJQh9(*rlS5`N'Jnad=j%r]8-$sE8$`Fk1NL*B;>HTj6:N?5;W0,qPC)22=0Xbk2+XeJ^K1QXO5+&=d]d#!e$fpH0lU2[mrr_Eq&i%.D8[Xb8XS4XaH?t;21%[MgfK"4d"8QMrq@::6.k/B-FtZi"VUiFAa!P99^`(%3X^k40,2uEa_A$ln&7P<MfW\EbV$En?au^Rq/5n$;oV+Au,U&)3`5DJl6Paons9Ldn34H8M>@>`_@h6)O6[^RBRPp(7/9LI5Ub(V6We#+U1dp:bNl(g:/F^c_\,RjOnFWDloSQr=.Uk@pR_k$[^9/9VQ\7r.$r@Wb`JI_GeaeFXh;&l$7K`p;%D(lY&'R8J?LtXi`J\3T@-^.RlHT.2KIi>ca>%&KiB?od=LKM`#K\LE("(mIsqG"f99c<b9LeJPek-)'EBkKS57A1;*]N*)D>D]qUONpTCui.U0Jj-$)1p-RfF7[Zk/#Nc[4!Rg)#'dM"tkOma-$_W)Am!#(sOT#3S(dl+9:"9P;4;TPZgS0\?\F3[sE#2YJr`-iW!"@KL!B5XQS]CS$(Zu#>:5&kr?6Sc5ikf]K&,$Y3"C0bc>_ok3!)\`9XWI';9/#RJF6E(YGOa6O[!`^FFHj^g15)#BNB"uGNa-_2_3&7ICR64H2n!jf[/tAjX<Ie,PI"##U@r,NIl9jQ!a^*(KjK,KcIOlBkCd`ol;hB_nkUDqHbP4me>Mq)%69'SM=>$DRfRq#0$,rI+TCHRS0('n4@gCErFJ0`=qG(dAMJn^`;uiGT*cS4o.#h7+1jMn2]Uso0`<Oe^-2=?t_rDHVcH%MP+JGp^8H<>76Wl,MiCI/m)</:JFG%V"pO=QQD:rL23h^>RNR8bm#\MD8J,hj"[#,6far_ddYT/ckP:9.mFBOl>XL!ujUbW[),J%t^E,>*Vco9:^S+)b8l0%8E2%hr9bl$?ebU_^YmMcrUP.\g:QpqP36H$>[9pm9H_mp5("0E\U"#f[OP#V\BY`<f"T_P`O$AuN/Y(9!_K=21"^d_4S<nRGk\eSkjV+6%PF]-i1c@h7V5A@tFatdU@MqTgVLQ_KFj>%IKQ7Sg4Vm`lFS.rotXt=Ai'HJ=B&HWW8Jm34p>=K)]HgV2j#:aB)@6t3c>e+*d%k5QT9h3"A1#UD8RLj$`][ras\Qg($N.+@%IQr>F[4mLSO,#eC2B(bLKTk0t2DTuQ=saTQ+6m-h`:lUc"Z9uUf?;Y!h-rL,2VRem<:n!un%`,g_f`%:aQ(V\0.KF335nhA.6Lk&HTKREDRYAlNO]!haa>NFcIF9\%YbS-0niPhA%0p>61h*,MC(QdNG]^3)lj"-TsY%bEqfr56e>!;M%FMJTESnE9'/?ARHc]Tc&-)n)s)OJ(Na=_PoJ>O_d(]J7,&DqALrI;@HpK?gRnR`i5Id&HSO4iB]W"2'f06+0GI.1ZAFoV+<205Yb!@0fWl014#M'I6<E-[P_GYleq.PWSU_R%p:ke))fBU5D;k-Ho)/1Ne^_e;ftf*Xs)rC0H#e:UGeDf)Ud&^4cY/$9hEJc8nF,qm'CD,%1nG4tc0=MU/LJrk(>i)'mBCdK15k%-3emoY5a<LB^;pcr?3N'rkgGU1fE_8&-1ici18Xml;?^7Y4gL*fj*pW+l`WtMjh6N\lL54qVHCWV']^MRjP(U51d4ZY3Yb@nVgc4?jS9sf%RqZrgTQpcG@),DK\U71Er4BL<j$j.2RUL+.=+>mWhD?p;gsP=<9qXI;R8G%%%a6<Zs07UrI.HkIu-?c]$G#D\.Ws&k!)(?L]ud4o6GicC#afQXG18E6,p&$@Pl54#p!r!g<W>N:%9)iD<:1$17ZZK=S^h+AiRO9oYR`jl^Gn6J%R5An('m5b=,D=OP3cYPMnn-s)cWTprJ20`((`PJ,i`:\^3Bn<#I?sML!X3Z*HY_DDd"5"t4pk_5*)?,PH%(Y\T`Z6=l,b`d%#-Uj2[VHd$C9Jk62Y>'QQl[uc@mH\Y*j2Qtme@Cl$0Xg.)4/*e5lFam*i:Nn$m2#C$)>bN!]a7/X-YeET[j]kG?h&&o$1V7sU'?pV#)4<S2&*Aq)EV)V[3;Vh44^K`@2>b_a&jqW444%-$MooNsYcs0WUX)XL?4(DobePr4^NR%cgO;CH]'!$9rPVY]4-:-BIs$Bm>[O!BSA"aki6CfBDJQ$Hr7_oS1`<c,I-+F5k\XGT_'[UB;L)7LXm@gUmbGr[LX*ck0Cn"BRd8P-*N8r7nOHqT?#FMYZo01d'r6<sMjl1c_W#_8.\]1#SY'WD&VL)TZF2CQ('-Srk5pD5g2@p:MP-.ns1Y9WC>H\dbCn?.rrH$86BD~>
+endstream
+endobj
+11 0 obj
+<<
+/Author (RENZO AGUSTIN GUTIERREZ)
+/CreationDate (D\07220260822211019\05300\04700\047)
+/Creator (\050unspecified\051)
+/Keywords ()
+/ModDate (D\07220260822211019\05300\04700\047)
+/Producer (ReportLab PDF Library \055 \050opensource\051)
+/Subject (\050unspecified\051)
+/Title (RENZO AGUSTIN GUTIERREZ)
+/Trapped (\057False)
+>>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000015 00000 n 
+0000000083 00000 n 
+0000000148 00000 n 
+0000000337 00000 n 
+0000007691 00000 n 
+0000007742 00000 n 
+0000007849 00000 n 
+0000007961 00000 n 
+0000008076 00000 n 
+0000008266 00000 n 
+0000011199 00000 n 
+trailer
+<<
+/Size 12
+/Root 1 0 R
+/Info 11 0 R
+/ID [ <d18def471ff446a595edcb7ca29cc334> <d18def471ff446a595edcb7ca29cc334> ]
+>>
+startxref
+11541
+%%EOF
