@@ -37,17 +37,22 @@ class CyberApp extends ConsumerWidget {
         return PointerTracker(
           child: MouseRegion(
             cursor: cfg.cursor ? SystemMouseCursors.none : MouseCursor.defer,
-            child: Stack(
-              children: [
-                child ?? const SizedBox.shrink(),
-                const Positioned.fill(child: ProfileSwitchOverlay()),
-                // Encima de todo menos del cursor: la primera visita elige
-                // idioma antes de leer nada.
-                const Positioned.fill(child: LanguageGate()),
-                if (cfg.crt)
-                  Positioned.fill(child: CrtOverlay(animate: cfg.crtNoise)),
-                if (cfg.cursor) const Positioned.fill(child: NeonCursor()),
-              ],
+            // Material transparente: sin un Material arriba, el texto de los
+            // overlays sale subrayado.
+            child: Material(
+              type: MaterialType.transparency,
+              child: Stack(
+                children: [
+                  child ?? const SizedBox.shrink(),
+                  const Positioned.fill(child: ProfileSwitchOverlay()),
+                  // Encima de todo menos del cursor: la primera visita elige
+                  // idioma antes de leer nada.
+                  const Positioned.fill(child: LanguageGate()),
+                  if (cfg.crt)
+                    Positioned.fill(child: CrtOverlay(animate: cfg.crtNoise)),
+                  if (cfg.cursor) const Positioned.fill(child: NeonCursor()),
+                ],
+              ),
             ),
           ),
         );

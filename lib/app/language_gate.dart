@@ -8,7 +8,6 @@ import '../core/theme/breakpoints.dart';
 import '../core/theme/cyber_colors.dart';
 import '../core/theme/cyber_typography.dart';
 import '../core/widgets/cyber_panel.dart';
-import '../core/widgets/hazard_stripes.dart';
 import '../core/widgets/neon_button.dart';
 import 'effects_controller.dart';
 
@@ -89,7 +88,9 @@ class _LanguageGateState extends ConsumerState<LanguageGate>
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: mobile ? 20 : 40),
           child: CyberPanel(
-            width: mobile ? null : 520,
+            // El contenido es corto: un panel ancho deja la mitad vacia y
+            // parece que falta algo.
+            width: mobile ? null : 400,
             borderColor: CyberColors.yellow,
             borderOpacity: 0.7,
             brackets: true,
@@ -106,48 +107,45 @@ class _LanguageGateState extends ConsumerState<LanguageGate>
                     letterSpacing: 3,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
                 DecodeText(
                   '¿EN QUÉ IDIOMA?',
                   animate: cfg.animate,
                   duration: const Duration(milliseconds: 500),
-                  style: CyberType.display(size: mobile ? 26 : 32),
+                  style: CyberType.display(size: mobile ? 24 : 30),
                 ),
+                const SizedBox(height: 2),
+                // La segunda pregunta no compite con la primera: dice lo mismo
+                // y alcanza con que se lea.
                 Text(
                   'WHICH LANGUAGE?',
-                  style: CyberType.display(
-                    size: mobile ? 26 : 32,
+                  style: CyberType.mono(
+                    size: 12,
                     color: CyberColors.text2,
+                    letterSpacing: 2,
                   ),
                 ),
-                const SizedBox(height: 16),
-                const SizedBox(width: 140, child: HazardStripes(height: 5)),
-                const SizedBox(height: 18),
+                const SizedBox(height: 22),
                 // Cada opción habla en su propio idioma: nadie tiene que leer
                 // el otro para entender cuál le toca.
                 _Opcion(
                   label: 'ESPAÑOL',
-                  nota: 'La página, los proyectos y los CV, en castellano.',
                   color: CyberColors.cyan,
                   sugerido: _sugerido == AppLocale.es,
-                  sugeridoLabel: 'SUGERIDO',
                   onTap: () => _elegir(AppLocale.es),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 _Opcion(
                   label: 'ENGLISH',
-                  nota: 'The site, the projects and the CVs, in English.',
                   color: CyberColors.magenta,
                   sugerido: _sugerido == AppLocale.en,
-                  sugeridoLabel: 'SUGGESTED',
                   onTap: () => _elegir(AppLocale.en),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 20),
                 Text(
-                  'Se puede cambiar cuando quieras, arriba a la derecha.\n'
-                  'You can switch any time, top right.',
+                  'Se cambia arriba a la derecha · Switch it top right',
                   style: CyberType.mono(
-                    size: 10,
+                    size: 9,
                     color: CyberColors.text2,
                     letterSpacing: 1,
                   ),
@@ -164,18 +162,14 @@ class _LanguageGateState extends ConsumerState<LanguageGate>
 class _Opcion extends StatelessWidget {
   const _Opcion({
     required this.label,
-    required this.nota,
     required this.color,
     required this.sugerido,
-    required this.sugeridoLabel,
     required this.onTap,
   });
 
   final String label;
-  final String nota;
   final Color color;
   final bool sugerido;
-  final String sugeridoLabel;
   final VoidCallback onTap;
 
   @override
@@ -185,7 +179,7 @@ class _Opcion extends StatelessWidget {
         // Ancho fijo: "ESPAÑOL" y "ENGLISH" no miden lo mismo y dos botones
         // de distinto tamaño se leen como si uno pesara más que el otro.
         SizedBox(
-          width: 136,
+          width: 150,
           child: NeonButton(
             label: label,
             color: color,
@@ -194,28 +188,11 @@ class _Opcion extends StatelessWidget {
             onPressed: onTap,
           ),
         ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (sugerido)
-                Text(
-                  sugeridoLabel,
-                  style: CyberType.mono(
-                    size: 9,
-                    color: color,
-                    letterSpacing: 2,
-                  ),
-                ),
-              Text(
-                nota,
-                style: CyberType.mono(size: 10, color: CyberColors.text1),
-              ),
-            ],
-          ),
-        ),
+        if (sugerido) ...[
+          const SizedBox(width: 12),
+          // Una marca y nada más: el botón relleno ya dice cuál es.
+          Icon(Icons.chevron_left, size: 14, color: color),
+        ],
       ],
     );
   }
