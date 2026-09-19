@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -33,6 +35,16 @@ class _LanguageGateState extends ConsumerState<LanguageGate>
   /// Lo que el navegador declara. Sirve para marcar una opción, nada más.
   final AppLocale _sugerido = LocaleStore.guess();
 
+  /// El idioma que el panel está mostrando al frente. No es la elección: es la
+  /// muestra de cómo va a quedar.
+  late AppLocale _muestra = _sugerido;
+
+  /// Solo el cambio pedido por el puntero se descifra. El automático cambia el
+  /// peso de las dos líneas y nada más: si cada vuelta trajera animación, en
+  /// diez segundos sería un cartel parpadeando.
+  bool _decodificar = true;
+
+  Timer? _ciclo;
   bool _cerrando = false;
 
   @override
@@ -41,12 +53,37 @@ class _LanguageGateState extends ConsumerState<LanguageGate>
     // Un respiro antes de aparecer: que se vea que la página está detrás y no
     // que la pregunta es la página.
     Future<void>.delayed(const Duration(milliseconds: 260), () {
-      if (mounted) _c.forward();
+      if (!mounted) return;
+      _c.forward();
+      _arrancarCiclo();
+    });
+  }
+
+  /// Sin puntero no hay hover, así que la muestra se turna sola. Se corta para
+  /// siempre en cuanto aparece un puntero: ahí manda la persona.
+  void _arrancarCiclo() {
+    _ciclo ??= Timer.periodic(const Duration(milliseconds: 3600), (_) {
+      if (!mounted) return;
+      setState(() {
+        _decodificar = false;
+        _muestra = _muestra == AppLocale.es ? AppLocale.en : AppLocale.es;
+      });
+    });
+  }
+
+  void _mirar(AppLocale locale) {
+    _ciclo?.cancel();
+    _ciclo = null;
+    if (_muestra == locale) return;
+    setState(() {
+      _decodificar = true;
+      _muestra = locale;
     });
   }
 
   @override
   void dispose() {
+    _ciclo?.cancel();
     _c.dispose();
     super.dispose();
   }
@@ -108,17 +145,23 @@ class _LanguageGateState extends ConsumerState<LanguageGate>
                   ),
                 ),
                 const SizedBox(height: 12),
+                // Las dos preguntas están siempre: lo único que se mueve es
+                // cuál está al frente. Así nada aparece ni desaparece y el
+                // panel no salta de alto.
                 DecodeText(
-                  '¿EN QUÉ IDIOMA?',
-                  animate: cfg.animate,
-                  duration: const Duration(milliseconds: 500),
+                  _muestra == AppLocale.es
+                      ? '¿EN QUÉ IDIOMA?'
+                      : 'WHICH LANGUAGE?',
+                  key: ValueKey('titulo-${_muestra.name}'),
+                  animate: cfg.animate && _decodificar,
+                  duration: const Duration(milliseconds: 380),
                   style: CyberType.display(size: mobile ? 24 : 30),
                 ),
                 const SizedBox(height: 2),
-                // La segunda pregunta no compite con la primera: dice lo mismo
-                // y alcanza con que se lea.
                 Text(
-                  'WHICH LANGUAGE?',
+                  _muestra == AppLocale.es
+                      ? 'WHICH LANGUAGE?'
+                      : '¿EN QUÉ IDIOMA?',
                   style: CyberType.mono(
                     size: 12,
                     color: CyberColors.text2,
@@ -131,14 +174,16 @@ class _LanguageGateState extends ConsumerState<LanguageGate>
                 _Opcion(
                   label: 'ESPAÑOL',
                   color: CyberColors.cyan,
-                  sugerido: _sugerido == AppLocale.es,
+                  activo: _muestra == AppLocale.es,
+                  onHover: () => _mirar(AppLocale.es),
                   onTap: () => _elegir(AppLocale.es),
                 ),
                 const SizedBox(height: 10),
                 _Opcion(
                   label: 'ENGLISH',
                   color: CyberColors.magenta,
-                  sugerido: _sugerido == AppLocale.en,
+                  activo: _muestra == AppLocale.en,
+                  onHover: () => _mirar(AppLocale.en),
                   onTap: () => _elegir(AppLocale.en),
                 ),
                 const SizedBox(height: 20),
@@ -163,37 +208,47 @@ class _Opcion extends StatelessWidget {
   const _Opcion({
     required this.label,
     required this.color,
-    required this.sugerido,
+    required this.activo,
+    required this.onHover,
     required this.onTap,
   });
 
   final String label;
   final Color color;
-  final bool sugerido;
+
+  /// Si es el idioma que el panel está mostrando al frente.
+  final bool activo;
+
+  final VoidCallback onHover;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // Ancho fijo: "ESPAÑOL" y "ENGLISH" no miden lo mismo y dos botones
-        // de distinto tamaño se leen como si uno pesara más que el otro.
-        SizedBox(
-          width: 150,
-          child: NeonButton(
-            label: label,
-            color: color,
-            filled: sugerido,
-            prefix: '',
-            onPressed: onTap,
+    return MouseRegion(
+      onEnter: (_) => onHover(),
+      child: Row(
+        children: [
+          // Ancho fijo: "ESPAÑOL" y "ENGLISH" no miden lo mismo y dos botones
+          // de distinto tamaño se leen como si uno pesara más que el otro.
+          SizedBox(
+            width: 150,
+            child: NeonButton(
+              label: label,
+              color: color,
+              filled: activo,
+              prefix: '',
+              onPressed: onTap,
+            ),
           ),
-        ),
-        if (sugerido) ...[
-          const SizedBox(width: 12),
-          // Una marca y nada más: el botón relleno ya dice cuál es.
-          Icon(Icons.chevron_left, size: 14, color: color),
+          // Una sola marca: la del idioma que se está mostrando. Al abrir es
+          // el que sugiere el navegador, después el que se mira.
+          if (activo) ...[
+            const SizedBox(width: 12),
+            // Una marca y nada más: el botón relleno ya dice cuál es.
+            Icon(Icons.chevron_left, size: 14, color: color),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
