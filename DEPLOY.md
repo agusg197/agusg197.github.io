@@ -212,7 +212,6 @@ El sitio va a ser público, así que el repositorio también (en Pages gratis no
 | `CVs/` (en la raíz) | son los originales de trabajo; los publicados son los de `assets/cv/` |
 | `build/` | ya está ignorado |
 | `tool/redact_leadbox_shots.py` | apunta a rutas locales del repo privado de Leadbox. No filtra nada, pero deja el mapa de qué se tapó. Decidí si queda |
-| `.claude/` | configuración de la sesión; no molesta, pero no aporta |
 
 Ya está aplicado en `.gitignore`:
 

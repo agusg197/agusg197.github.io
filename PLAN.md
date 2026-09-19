@@ -8,8 +8,7 @@
 > Decisiones confirmadas: paleta Night City, one-page, ES/EN, full glitch por defecto,
 > sin sonido, hosting GitHub Pages o Firebase, paquete `agusg197_cyber`.
 >
-> Correr en local: `flutter run -d web-server --web-port 5173` y abrir http://localhost:5173
-> (o el preview del desktop app con la config `flutter-web` en `.claude/launch.json`).
+> Correr en local: `flutter run -d web-server --web-port 5173` y abrir http://localhost:5173.
 > Rutas: `/` (home) y `/#/lab` (laboratorio de efectos).
 
 ---
