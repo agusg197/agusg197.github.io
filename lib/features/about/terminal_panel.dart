@@ -118,13 +118,21 @@ class _TerminalPanelState extends ConsumerState<TerminalPanel> {
         if (d.experience.isEmpty) {
           return [_Line(s.terminalNoData, _LineKind.error)];
         }
+        // Tres lineas cortas por puesto en vez de un renglon que se parte:
+        // fecha, donde y con que. El detalle largo vive en la seccion de
+        // experiencia, que para eso esta.
         return [
-          for (final e in d.experience)
+          for (final (i, e) in d.experience.indexed) ...[
+            if (i > 0) const _Line('', _LineKind.output),
             _Line(
-              '${e.period.of(locale)}  ${e.company}  ·  ${e.role.of(locale)}'
+              '${e.period.of(locale)}'
               '${e.current ? '  [${s.expCurrent}]' : ''}',
-              e.current ? _LineKind.accent : _LineKind.output,
+              e.current ? _LineKind.accent : _LineKind.dim,
             ),
+            _Line('${e.company}  ·  ${e.role.of(locale)}', _LineKind.output),
+            if (e.stack.isNotEmpty)
+              _Line(e.stack.join(' · '), _LineKind.dim),
+          ],
         ];
       case 'projects':
       case 'proyectos':
