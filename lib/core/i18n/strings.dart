@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'locale_store.dart';
+
 import '../../app/effects_controller.dart';
 
 enum AppLocale {
@@ -13,11 +15,28 @@ enum AppLocale {
 
 class LocaleController extends Notifier<AppLocale> {
   @override
-  AppLocale build() => AppLocale.es;
+  AppLocale build() => LocaleStore.read() ?? LocaleStore.guess();
 
-  void set(AppLocale value) => state = value;
-  void toggle() => state = state == AppLocale.es ? AppLocale.en : AppLocale.es;
+  void set(AppLocale value) {
+    state = value;
+    LocaleStore.write(value);
+  }
+
+  void toggle() => set(state == AppLocale.es ? AppLocale.en : AppLocale.es);
 }
+
+/// Si la visita ya eligió idioma alguna vez. Mientras sea false hay que
+/// preguntar: adivinar por el navegador alcanza para arrancar, no para decidir
+/// por alguien que lee en dos idiomas.
+class LocaleAskedController extends Notifier<bool> {
+  @override
+  bool build() => LocaleStore.read() != null;
+
+  void markAsked() => state = true;
+}
+
+final localeAskedProvider =
+    NotifierProvider<LocaleAskedController, bool>(LocaleAskedController.new);
 
 final localeProvider =
     NotifierProvider<LocaleController, AppLocale>(LocaleController.new);

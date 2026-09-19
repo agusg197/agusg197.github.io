@@ -28,6 +28,7 @@ class HeroView extends ConsumerWidget {
     this.projects = const [],
     this.onViewProjects,
     this.onDownloadCv,
+    this.cvLang,
   });
 
   final Person? person;
@@ -35,6 +36,10 @@ class HeroView extends ConsumerWidget {
   final List<Project> projects;
   final VoidCallback? onViewProjects;
   final VoidCallback? onDownloadCv;
+
+  /// Idioma del CV cuando no es el de la página: se agrega al botón para que
+  /// nadie se encuentre con un PDF en otro idioma después de bajarlo.
+  final String? cvLang;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -167,7 +172,9 @@ class HeroView extends ConsumerWidget {
                                   onPressed: onViewProjects,
                                 ),
                                 NeonButton(
-                                  label: s.heroCtaCv,
+                                  label: cvLang == null
+                                      ? s.heroCtaCv
+                                      : '${s.heroCtaCv} ($cvLang)',
                                   icon: Icons.download_outlined,
                                   onPressed: onDownloadCv,
                                 ),

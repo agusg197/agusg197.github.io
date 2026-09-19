@@ -174,6 +174,48 @@ class SkillCategory {
 }
 
 /// One way of presenting the same person: the Flutter profile or the AI one.
+/// Los CV disponibles, uno por idioma.
+///
+/// Hoy hay solo inglés. Cuando exista el castellano se agrega al JSON y la
+/// página lo entrega sola; mientras tanto entrega el que hay y avisa en qué
+/// idioma está, que es mejor que una descarga sorpresa.
+class CvFiles {
+  const CvFiles(this.porIdioma);
+
+  factory CvFiles.fromJson(dynamic j) {
+    if (j is String) {
+      // Forma vieja: un archivo sin idioma declarado.
+      final ruta = j.trim();
+      return CvFiles(ruta.isEmpty ? const {} : {'': ruta});
+    }
+    if (j is Map) {
+      return CvFiles({
+        for (final e in j.entries)
+          e.key.toString(): e.value.toString(),
+      }..removeWhere((_, v) => v.isEmpty));
+    }
+    return const CvFiles({});
+  }
+
+  final Map<String, String> porIdioma;
+
+  bool get isEmpty => porIdioma.isEmpty;
+
+  /// El archivo para [locale], o el único que haya.
+  String? rutaPara(AppLocale locale) =>
+      porIdioma[locale.name] ??
+      (porIdioma.isEmpty ? null : porIdioma.values.first);
+
+  /// El idioma del archivo que se va a bajar, en mayúsculas, solo cuando **no**
+  /// coincide con el de la página. Null quiere decir que no hay nada que
+  /// aclarar.
+  String? avisoIdioma(AppLocale locale) {
+    if (porIdioma.containsKey(locale.name) || porIdioma.isEmpty) return null;
+    final idioma = porIdioma.keys.first;
+    return idioma.isEmpty ? null : idioma.toUpperCase();
+  }
+}
+
 class ProfileVariant {
   const ProfileVariant({
     required this.id,
@@ -193,7 +235,7 @@ class ProfileVariant {
         headline: L10n.fromJson(j['headline']),
         roles: L10nList.fromJson(j['roles']),
         bio: L10n.fromJson(j['bio']),
-        cv: (j['cv'] ?? '').toString(),
+        cv: CvFiles.fromJson(j['cv']),
         stats: _maps(j['stats']).map(StatItem.fromJson).toList(growable: false),
         projectOrder: (j['projectOrder'] as List? ?? const [])
             .map((e) => e.toString())
@@ -209,7 +251,7 @@ class ProfileVariant {
   final L10n bio;
 
   /// Asset path of the CV to download for this profile.
-  final String cv;
+  final CvFiles cv;
   final List<StatItem> stats;
   final List<String> projectOrder;
   final List<SkillCategory> skills;
@@ -500,7 +542,7 @@ class PortfolioData {
     headline: L10n.empty,
     roles: L10nList([], []),
     bio: L10n.empty,
-    cv: '',
+    cv: CvFiles({}),
     stats: [],
     projectOrder: [],
     skills: [],

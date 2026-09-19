@@ -60,7 +60,9 @@
         "es": "Cinco años construyendo y publicando apps Android y iOS en producción, siete en desarrollo de software. Entregué funcionalidades de banca core para una fintech mexicana con más de 100.000 transacciones mensuales y una tasa libre de fallos por encima del 99,8%. Trabajo con Dart, Riverpod, BLoC, Clean Architecture, integración REST y Firebase, y me hago cargo del ciclo completo de release en App Store y Google Play.",
         "en": "Five years building and shipping production Android and iOS apps, seven in software overall. I delivered core banking features for a Mexican fintech handling 100,000+ monthly transactions with a crash-free rate above 99.8%. I work with Dart, Riverpod, BLoC, Clean Architecture, REST and Firebase integration, and I own the full release cycle on the App Store and Google Play."
       },
-      "cv": "assets/cv/Renzo-Gutierrez-CV-Flutter-Developer-EN.pdf",
+      "cv": {
+        "en": "assets/cv/Renzo-Gutierrez-CV-Flutter-Developer-EN.pdf"
+      },
       "stats": [
         {
           "value": 7,
@@ -243,7 +245,9 @@
         "es": "Construyo productos con modelos de lenguaje de punta a punta: diseño de prompts, salida estructurada con validación estricta de esquema, mitigación de alucinaciones, harness de evaluación propio y elección de modelo por latencia y costo. Armé dos pipelines completos, de voz a dato estructurado y de OCR a markdown, cada uno con su framework de evals cuyos resultados medidos cambiaron el rumbo técnico del proyecto.",
         "en": "I build LLM products end to end: prompt design, structured output with strict schema validation, hallucination mitigation, custom evaluation harnesses and latency/cost-driven model selection. I built two complete pipelines, speech to structured data and OCR to markdown, each with an eval framework whose measured results changed the technical roadmap."
       },
-      "cv": "assets/cv/Renzo-Gutierrez-CV-AI-Engineer-EN.pdf",
+      "cv": {
+        "en": "assets/cv/Renzo-Gutierrez-CV-AI-Engineer-EN.pdf"
+      },
       "stats": [
         {
           "value": 3,

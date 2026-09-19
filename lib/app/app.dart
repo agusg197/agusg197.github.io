@@ -8,6 +8,7 @@ import '../core/effects/pointer_tracker.dart';
 import '../core/i18n/strings.dart';
 import '../core/theme/cyber_theme.dart';
 import 'effects_controller.dart';
+import 'language_gate.dart';
 import 'profile_switch_overlay.dart';
 import 'router.dart';
 
@@ -40,6 +41,9 @@ class CyberApp extends ConsumerWidget {
               children: [
                 child ?? const SizedBox.shrink(),
                 const Positioned.fill(child: ProfileSwitchOverlay()),
+                // Encima de todo menos del cursor: la primera visita elige
+                // idioma antes de leer nada.
+                const Positioned.fill(child: LanguageGate()),
                 if (cfg.crt)
                   Positioned.fill(child: CrtOverlay(animate: cfg.crtNoise)),
                 if (cfg.cursor) const Positioned.fill(child: NeonCursor()),

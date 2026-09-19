@@ -67,6 +67,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final cfg = ref.effects(context);
     final async = ref.watch(portfolioProvider);
     final data = async.value;
+    final locale = ref.watch(localeProvider);
     final profileIndex = ref.watch(activeProfileProvider);
     final profile = data?.profileAt(profileIndex);
     final titles = [
@@ -103,9 +104,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ? const []
                           : data.projectsFor(profile),
                       onViewProjects: () => _scrollTo(2),
-                      onDownloadCv: profile == null
-                          ? null
-                          : () => _downloadCv(profile.cv),
+                      cvLang: profile?.cv.avisoIdioma(locale),
+                      onDownloadCv: switch (profile?.cv.rutaPara(locale)) {
+                        final String ruta => () => _downloadCv(ruta),
+                        null => null,
+                      },
                     ),
                     async.when(
                       loading: () => _StatusPanel(text: s.loading, pulse: true),
