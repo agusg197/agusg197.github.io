@@ -175,15 +175,20 @@ el código, y los tres repos de los proyectos ya están ahí.
 ### Falta decidir
 
 - [x] **`og:image`**: `web/og.png`, 1200×630, la calle dibujada por el mismo pintor del sitio
-      (`flutter test tool/render_og.dart` la regenera). Cuando haya
-      dominio conviene pasarla a URL absoluta (`https://…/og.png`): LinkedIn y algunos
-      scrapers no resuelven rutas relativas contra el `<base href>`.
+      (`flutter test tool/render_og.dart` la regenera). Va con URL absoluta
+      (`https://agusg197.github.io/og.png`): con la relativa, Discord mostraba el enlace
+      sin imagen.
 - [x] **Favicon e íconos de la app**: generados con `tool/render_icons.py` — marco con
       esquina cortada, la A con aberración cromática y la franja de peligro. Incluye las
       variantes maskable, que son las que usa Android al instalar la PWA.
-- [ ] **El `og:image` es una ruta relativa.** Funciona en la mayoría de los lectores, pero
-      LinkedIn a veces no la resuelve. Cuando el dominio exista, conviene pasarla a
-      `https://agusg197.github.io/og.png`. Es una línea en `web/index.html`.
+- [x] **Datos frescos después de un deploy.** Pages deja cachear cada archivo diez
+      minutos y Flutter no le pone hash a los assets: el código nuevo podía llegar con el
+      `portfolio.json` viejo. El JSON se pide con `cache: no-cache` (revalida; si no
+      cambió, es un 304 vacío).
+- [x] **Los embeds tienen caché propia.** Discord y compañía guardan la vista previa de
+      un enlace un buen rato: después de cambiar el título o la imagen, el mismo enlace
+      puede seguir mostrando la versión vieja. Para probar, pegar el enlace con algo al
+      final (`https://agusg197.github.io/?v=2`).
 - [ ] **El dossier en PDF viaja en el repositorio** (`entrega/Dossier-Agustin.pdf`, 1,8 MB).
       Si querés ofrecerlo como descarga desde la página hay que copiarlo a `web/`; si no,
       puede quedar fuera del repositorio.

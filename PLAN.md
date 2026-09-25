@@ -10,8 +10,8 @@
 >
 > Correr en local: `flutter run -d web-server --web-port 5173` y abrir http://localhost:5173.
 > Para verificar como en producción: `flutter build web --release` y servir `build/web`.
-> Rutas: `/` (la calle), `/#/p/:id` (la ficha técnica de un proyecto) y `/#/lab`
-> (laboratorio de efectos). `/#/clasica`, la home de v1, redirige a la calle.
+> Rutas: `/` (la calle) y `/#/p/:id` (la ficha técnica de un proyecto). `/#/clasica` (la
+> home de v1) y `/#/lab` (el laboratorio de efectos) redirigen a la calle.
 
 ---
 
@@ -39,7 +39,7 @@ un lugar físico.
 - Nada de barras de nivel: las skills se prueban con proyectos y trabajos (ripperdoc).
 
 **Los edificios** (en `lib/features/city/`), en orden: casa del merc (ficha y terminal),
-torre (experiencia), talleres (una persiana por app), ripperdoc (skills), arcade (un
+torre (experiencia), taller (una persiana por app), ripperdoc (skills), arcade (un
 proyecto web por máquina; Bontà Dolce con su demo propia, el resto con una máquina genérica
 que sale del JSON) y teléfono (contacto). Primero quién soy y dónde trabajé, después lo que
 hice, y al final cómo escribirme. La cuadra se calcula desde los datos: más apps o más proyectos web

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/city/city_view.dart';
-import '../features/lab/lab_view.dart';
 import '../features/projects/project_detail_view.dart';
 
 final router = GoRouter(
@@ -19,20 +18,18 @@ final router = GoRouter(
         ),
       ),
     ),
-    // La home de antes ya no existe: la calle tiene todo. Los enlaces viejos
-    // caen en la calle en vez de en una página en blanco.
+    // La home de antes y el laboratorio de efectos ya no existen: la calle
+    // tiene todo. Los enlaces viejos caen en la calle y no en una página en
+    // blanco.
     GoRoute(path: '/clasica', redirect: (context, state) => '/'),
     GoRoute(path: '/calle', redirect: (context, state) => '/'),
+    GoRoute(path: '/lab', redirect: (context, state) => '/'),
     GoRoute(
       path: '/p/:id',
       pageBuilder: (context, state) => _fade(
         state,
         ProjectDetailView(projectId: state.pathParameters['id'] ?? ''),
       ),
-    ),
-    GoRoute(
-      path: '/lab',
-      pageBuilder: (context, state) => _fade(state, const LabView()),
     ),
   ],
 );

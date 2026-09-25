@@ -20,7 +20,7 @@ el botón para entrar. Todo está dibujado por código: no hay un solo archivo d
 |---|---|
 | La casa del merc | la ficha (el retrato se escanea de píxel a foto) y, tras la puerta 197, la terminal |
 | La torre | un ascensor con un piso por trabajo |
-| Los talleres | una persiana por app: qué es y qué problema resuelve contado simple, una línea de armado para probarla paso a paso, y qué aprendí con los números traducidos |
+| El taller | una persiana por app: qué es y qué problema resuelve contado simple, una línea de armado para probarla paso a paso, y qué aprendí con los números traducidos |
 | El ripperdoc | las skills se instalan como implantes y dicen en qué proyectos y trabajos se usaron |
 | El arcade | una máquina por proyecto web; Bontà Dolce se juega entero, del armado de la caja al mensaje de WhatsApp |
 | El teléfono | el contacto, con el mensaje medio armado para mandar desde el correo propio |
@@ -29,8 +29,8 @@ La ciudad es pixel art; el trabajo no: capturas y demos se ven nítidas. Está p
 también para quien no programa: cada cartel dice qué hacer ahí ("> TOCÁ UNA MÁQUINA"), el
 merc lo explica sin nombres de tecnologías, y el botón **?** abre el mapa de la cuadra. La
 primera visita arranca con una bienvenida corta, y en la vidriera de la casa saluda Clawd, la
-mascota de Claude Code. Los efectos aislados están en el laboratorio (`/#/lab`), a un botón
-desde la calle. La home de antes ya no existe: `/#/clasica` redirige a la calle.
+mascota de Claude Code. La home de antes y el laboratorio de efectos ya no existen:
+`/#/clasica` y `/#/lab` redirigen a la calle.
 
 **Los proyectos se caminan, no se leen.** Cada ficha trae un recorrido de etapas y una
 entrada de texto: el visitante escribe algo suyo y ve qué le hace cada etapa. El detector
@@ -107,8 +107,7 @@ flutter run -d chrome
 Enlaces directos: `/#/?at=workshop` arranca frente a un edificio (`home`, `arcade`,
 `workshop`, `clinic`, `tower`, `phone`) y `/#/?ver=bonta` abre un panel (`ficha`,
 `terminal`, `bonta`, `skills`, `torre`, `contacto`, `taller` o `taller-<id>` para una app
-puntual, como `taller-trino`). El laboratorio de efectos, con cada
-pieza aislada y sus controles, está en `/#/lab`.
+puntual, como `taller-trino`).
 
 ```bash
 flutter analyze   # sin issues

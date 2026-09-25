@@ -9,7 +9,6 @@ import 'street_layout.dart';
 extension CityStrings on S {
   String get cityTitle => 'AGUS.EXE';
   String get cityBlock => t('NIGHT CITY // CUADRA 01', 'NIGHT CITY // BLOCK 01');
-  String get cityLab => 'LAB';
   String get cityHelp => '?';
 
   String get lotHome => t('QUIÉN SOY', 'ABOUT ME');
@@ -157,7 +156,7 @@ extension CityStrings on S {
   List<String> get signHire => t('DISPONIBLE|PARA|CONTRATO', 'OPEN|FOR|CONTRACT').split('|');
   String get signArcadeSub => t('PAGINAS WEB', 'WEBSITES');
   String get signSoon => t('PRONTO', 'SOON');
-  String get signWorkshop => t('TALLERES', 'WORKSHOP');
+  String get signWorkshop => t('TALLER', 'WORKSHOP');
   String get signWorkshopSub => t('APPS · IA · ESCRITORIO', 'APPS · AI · DESKTOP');
   String get signClinicSub => t('HABILIDADES TECNICAS', 'TECH SKILLS');
   String get signClinicOpen => t('ABIERTO', 'OPEN');
@@ -215,10 +214,6 @@ extension CityStrings on S {
             'How to write to me, with the message half written.'),
       };
   String get helpGo => t('IR', 'GO');
-  String get helpExtras => t(
-        'Arriba también está el laboratorio, donde se ven los efectos de la página uno por uno.',
-        'Up top you also have the lab, where the page effects are shown one by one.',
-      );
 
   String get close => t('CERRAR', 'CLOSE');
   String get escHint => t('ESC PARA SALIR', 'ESC TO EXIT');

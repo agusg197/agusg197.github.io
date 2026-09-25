@@ -119,7 +119,7 @@ class StreetLayout {
     );
   }
 
-  // --- Talleres ---
+  // --- Taller ---
 
   static const bayDoorWidth = 34;
   static const bayHeight = 46;

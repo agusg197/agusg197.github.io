@@ -1014,13 +1014,6 @@ class _Hud extends ConsumerWidget {
                 color: CyberColors.cyan,
                 onPressed: () => ref.read(effectsProvider.notifier).cycleIntensity(),
               ),
-              if (!compact)
-                PixelButton(
-                  label: s.cityLab,
-                  dense: true,
-                  color: CyberColors.text1,
-                  onPressed: () => context.go('/lab'),
-                ),
             ],
           ),
         ],

@@ -109,7 +109,6 @@ class _ProjectDetailViewState extends ConsumerState<ProjectDetailView> {
             left: 0,
             right: 0,
             child: TopBar(
-              showLabLink: false,
               leading: NeonButton(
                 label: s.projBack,
                 dense: true,

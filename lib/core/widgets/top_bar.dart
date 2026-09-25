@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../app/effects_controller.dart';
 import '../effects/pointer_tracker.dart';
@@ -14,7 +13,6 @@ class TopBar extends ConsumerWidget {
     super.key,
     this.items = const [],
     this.onItemTap,
-    this.showLabLink = true,
     this.leading,
     this.profileLabels = const [],
     this.activeProfile = 0,
@@ -23,7 +21,6 @@ class TopBar extends ConsumerWidget {
 
   final List<String> items;
   final ValueChanged<int>? onItemTap;
-  final bool showLabLink;
   final Widget? leading;
 
   /// Labels of the available CV profiles. Empty hides the switch.
@@ -92,14 +89,6 @@ class TopBar extends ConsumerWidget {
             active: settings.intensity != EffectsIntensity.still,
             onTap: () => ref.read(effectsProvider.notifier).cycleIntensity(),
           ),
-          if (showLabLink) ...[
-            const SizedBox(width: 6),
-            _IconAction(
-              tooltip: s.navLab,
-              icon: Icons.science_outlined,
-              onTap: () => context.go('/lab'),
-            ),
-          ],
         ],
       ),
     );

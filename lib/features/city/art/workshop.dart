@@ -1,6 +1,6 @@
 part of '../street_art.dart';
 
-// Los talleres: una persiana por app, a medio subir, con la app adentro.
+// El taller: una persiana por app, a medio subir, con la app adentro.
 // El orden lo decide el perfil activo, igual que en la versión clásica.
 
 int _workshop(PixelCanvas c, List<_Neon> neon, StreetLayout l, StreetText t) {

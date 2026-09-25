@@ -107,7 +107,7 @@ List<_Tab> _tabsFor(Project p) => [
       if (p.metrics.isNotEmpty || !(p.plain?.learned.isEmpty ?? true)) _Tab.learned,
     ];
 
-/// Adentro de los talleres: una persiana por app, y cada una se explica en
+/// Adentro del taller: una persiana por app, y cada una se explica en
 /// tres partes. Qué es y qué problema resuelve, con una comparación de todos
 /// los días; la línea de armado, donde se prueba paso a paso con lo que
 /// escriba el visitante; y qué aprendí, con los números traducidos.

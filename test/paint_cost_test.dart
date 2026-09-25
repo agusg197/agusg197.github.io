@@ -4,7 +4,6 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import 'package:agusg197_cyber/core/effects/crt_overlay.dart';
 import 'package:agusg197_cyber/core/effects/particle_field.dart';
-import 'package:agusg197_cyber/core/effects/tech_grid.dart';
 
 /// Canvas that tallies every call instead of drawing. Draw-call count per
 /// frame is the metric that actually matters for these background painters on
@@ -97,22 +96,6 @@ void main() {
       p.paint(c, size);
     }
     _report('CrtOverlay', c);
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(seconds: 1));
-  });
-
-  testWidgets('TechGridBackground draw cost', (tester) async {
-    final painters = await _paintersOf(
-      tester,
-      const TechGridBackground(hexColumns: 6, sectors: 5, quietLeft: 0.5),
-      size,
-    );
-    expect(painters, isNotEmpty);
-    final c = CountingCanvas();
-    for (final p in painters) {
-      p.paint(c, size);
-    }
-    _report('TechGridBackground', c);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 1));
   });

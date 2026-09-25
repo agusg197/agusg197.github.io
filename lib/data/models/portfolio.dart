@@ -532,7 +532,7 @@ class Project {
   final List<GalleryShot> gallery;
   final ProjectDemo? demo;
 
-  /// `app` (móvil o escritorio, va a los talleres) o `web` (va al arcade).
+  /// `app` (móvil o escritorio, va al taller) o `web` (va al arcade).
   final String kind;
 
   /// El sitio publicado. Va en el JSON y no en el código porque los dominios

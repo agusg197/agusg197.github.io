@@ -86,8 +86,6 @@ class HelpPanel extends ConsumerWidget {
                   ],
                 ),
               ),
-            const SizedBox(height: 10),
-            Text(s.helpExtras, style: CyberType.mono(size: 11, color: CyberColors.text2)),
           ],
         ),
       ),
