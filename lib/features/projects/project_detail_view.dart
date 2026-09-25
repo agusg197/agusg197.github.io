@@ -115,7 +115,8 @@ class _ProjectDetailViewState extends ConsumerState<ProjectDetailView> {
                 dense: true,
                 icon: Icons.arrow_back,
                 prefix: '',
-                onPressed: () => context.go('/'),
+                // Vuelve a la calle, adentro del taller de donde salió.
+                onPressed: () => context.go('/?at=workshop&ver=taller-${widget.projectId}'),
               ),
             ),
           ),

@@ -1,468 +1,706 @@
 # -*- coding: utf-8 -*-
-"""Arma el dossier en PDF a partir del mismo `portfolio.json` que alimenta la página.
+"""Arma el dossier de presentacion en PDF, en castellano y en ingles.
 
-    python tool/build_presentacion.py
+    python tool/build_presentacion.py          # los dos idiomas
+    python tool/build_presentacion.py en       # solo ingles
 
-Escribe `entrega/Dossier-Agustin.pdf`. No incluye ningún dato de contacto: ni
-correo, ni usuario, ni redes. Los enlaces a los repositorios públicos sí van,
-porque son el código del que habla cada ficha.
+Escribe `entrega/Dossier-Agustin.pdf` y `entrega/Dossier-Agustin-EN.pdf`, con el
+mismo `portfolio.json` que alimenta la pagina. No lleva ningun dato de contacto:
+ni correo, ni telefono, ni redes. Los enlaces a los repositorios publicos si
+van, porque son el codigo del que habla cada ficha.
 
-Necesita Microsoft Edge (o Chrome) para imprimir el HTML. La alternativa sería
-una librería de PDF, pero se perdería el control tipográfico y los enlaces.
+Cada proyecto ocupa dos hojas: que es, con sus numeros y sus pantallas, y como
+funciona, etapa por etapa, con el hallazgo que lo define. Los proyectos de
+trabajo se cuentan a nivel de arquitectura: que capas tiene, como sincroniza,
+que se mide. Nada de reglas de negocio, nombres de clientes ni pantallas sin
+tapar.
+
+Comparte el armado de pagina con `build_project_briefs.py`, que hace la version
+larga de cada proyecto por separado.
+
+Necesita Microsoft Edge o Chrome para imprimir, y Pillow para las capturas.
 """
-import base64
 import io
 import json
-import mimetypes
 import os
 import subprocess
 import sys
+import shutil
+import tempfile
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import build_project_briefs as fichas
+from build_project_briefs import ACENTOS, esc, img_b64, numeros_en, stripes
+
+ROOT = fichas.ROOT
 OUT_DIR = os.path.join(ROOT, 'entrega')
-HTML = os.path.join(OUT_DIR, 'dossier.html')
-PDF = os.path.join(OUT_DIR, 'Dossier-Agustin.pdf')
+NAVEGADORES = fichas.NAVEGADORES
 
-NAVEGADORES = [
-    r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
-    r'C:\Program Files\Microsoft\Edge\Application\msedge.exe',
-    r'C:\Program Files\Google\Chrome\Application\chrome.exe',
-]
+ARCHIVO = {'es': 'Dossier-Agustin.pdf', 'en': 'Dossier-Agustin-EN.pdf'}
 
-# Qué capturas acompañan a cada proyecto, y con qué recorte.
+# Las dos capturas que acompanan a cada proyecto en el dossier. La version
+# larga de cada uno, con todas, vive en su ficha.
 SHOTS = {
     'leadbox': ['02-pendientes.png', '04-fases.png'],
     'echo': ['02-escuchando.png', '01-preparacion.png'],
-    'cifra': ['01-periodo.png', '03-tarjeta.png'],
-    'trino': ['01-reposo.png', '03-confirmar.png'],
+    'cifra': ['03-tarjeta.png', '01-periodo.png'],
+    'trino': ['02-amanecer.png', '03-confirmar.png'],
     'tiza': ['resultado-pizarron.png', 'vista-json.png'],
     'advisor': ['01-ruteo.png'],
 }
 
-ES = 'es'
 
-
-def t(v):
-    """Toma el castellano de un valor bilingüe."""
+def t(v, lang, defecto=u''):
+    """El texto en el idioma pedido de un valor bilingue."""
     if isinstance(v, dict):
-        return v.get(ES, '')
-    return v or ''
+        return v.get(lang) or v.get('es') or v.get('en') or defecto
+    return v or defecto
 
 
-def b64(path):
-    if not os.path.exists(path):
-        return None
-    tipo = mimetypes.guess_type(path)[0] or 'image/png'
-    with open(path, 'rb') as f:
-        return 'data:%s;base64,%s' % (tipo, base64.b64encode(f.read()).decode())
+def num(s, lang):
+    """Los numeros se cargaron en castellano; en ingles cambian de separador."""
+    return numeros_en(s) if lang == 'en' else s
 
 
-def esc(s):
-    return (s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
-
-
-def sec_tag(n):
-    return 'SEC.%02d' % n
-
-
-CSS = u'''
-@page { size: A4 landscape; margin: 0; }
-* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-html, body { margin: 0; padding: 0; background: #07070C; color: #E6F1FF; }
-body { font-family: 'Segoe UI', system-ui, sans-serif; }
-
-.page {
-  position: relative; width: 297mm; height: 210mm; padding: 14mm 16mm 12mm;
-  background: #07070C; overflow: hidden; page-break-after: always;
-  display: flex; flex-direction: column;
+# --------------------------------------------------------------------------
+# Todo el texto que no sale del JSON. Escrito dos veces a proposito: traducir
+# a maquina esto se nota enseguida.
+# --------------------------------------------------------------------------
+PROSA = {
+    'es': {
+        'doc': u'DOSSIER // 2026',
+        'claim': u'Construyo productos que se entienden en el primer toque y aguantan '
+                 u'el segundo año.',
+        'sub': u'Apps en Flutter para teléfono, escritorio y web. Sistemas con modelos '
+               u'de lenguaje que dicen qué hicieron y cuánto costaron. Un solo código, '
+               u'varias pantallas, y números medidos en vez de adjetivos.',
+        'pie_portada': u'%d PROYECTOS · CADA UNO CON SUS NÚMEROS',
+        'por_que': u'Por qué esto se ve así',
+        'por_que_sec': u'PRIMERA IMPRESIÓN',
+        'por_que_big': u'Lo primero que ves ya es una muestra del trabajo.',
+        'por_que_p': u'Este documento sale de una página hecha en Flutter, la misma '
+                     u'herramienta con la que construiría tu producto: un solo código '
+                     u'que corre en Android, iOS, escritorio y navegador. No es una '
+                     u'plantilla comprada ni un tema de WordPress. Si te gusta cómo se '
+                     u'mueve, eso es exactamente lo que sé hacer.',
+        'b1': u'<b>El estilo cyberpunk no es decoración, es una prueba de carga.</b> '
+              u'Glitches, barridos, partículas y una grilla viva son de lo más caro que '
+              u'se le puede pedir a una interfaz. Que todo eso corra fluido, también en '
+              u'un teléfono, es la demostración de que el rendimiento no se negocia: el '
+              u'fondo pasó de 614 llamadas de dibujo a 11, medidas con un test y no a ojo.',
+        'b2': u'<b>Y es una manera de mirar el producto.</b> Un tablero oscuro obliga a '
+              u'lo que le pido a cualquier sistema: que cada número esté a la vista, que '
+              u'cada estado tenga nombre —esperando red, reintentando en 8 segundos— y '
+              u'que nada finja un progreso que no existe.',
+        'b3': u'<b>Con respeto por quien lo usa.</b> Todos los efectos se apagan de un '
+              u'clic y la página sigue siendo la misma, legible y completa. Un producto '
+              u'que solo funciona si al usuario le gusta el brillo no es un producto: es '
+              u'un truco.',
+        'leer': u'CÓMO LEER CADA PROYECTO',
+        'leer_p': [
+            u'Cada proyecto ocupa dos hojas y ninguna es un folleto.',
+            u'<b>La primera</b> dice qué problema resuelve, con qué está hecho y qué se '
+            u'midió. Los números son de corridas reales: tiempos, tests, tasas.',
+            u'<b>La segunda</b> abre el recorrido completo, etapa por etapa, de la '
+            u'entrada a la salida, y termina en el hallazgo: la decisión que define al '
+            u'proyecto, incluidas las que salieron al revés.',
+            u'<b>Los proyectos de trabajo</b> se cuentan a nivel de arquitectura: capas, '
+            u'sincronización, evidencia. Sin reglas de negocio, sin clientes, y con las '
+            u'capturas tapadas.',
+        ],
+        'leer_pie': u'TRES PROYECTOS CON EL CÓDIGO ABIERTO, TRES DE TRABAJO CON EL '
+                    u'CÓDIGO CERRADO Y UNO PROPIO EN CAMINO A LA TIENDA.',
+        'indice': u'Qué hay acá adentro',
+        'indice_sec': u'ÍNDICE',
+        'indice_lead': u'Siete proyectos, cada uno con el problema que resuelve, los '
+                       u'números que se midieron y la decisión que lo define.',
+        'perfiles': u'El mismo trabajo, contado de dos maneras',
+        'perfiles_sec': u'PERFILES',
+        'perfil': u'PERFIL %02d',
+        'experiencia': u'Experiencia',
+        'experiencia_sec': u'EXPERIENCIA',
+        'actual': u'ACTUAL',
+        'proyecto': u'PROYECTO %02d / %02d',
+        'medido': u'MEDIDO',
+        'hecho_con': u'HECHO CON',
+        'codigo': u'CÓDIGO',
+        'privado': u'CÓDIGO PRIVADO',
+        'privado_nota': u'El código es privado. Lo que está escrito acá es cómo se '
+                        u'organizó el trabajo, no qué muestra el producto en pantalla.',
+        'como_funciona': u'Cómo funciona',
+        'recorrido': u'EL RECORRIDO',
+        'hallazgo': u'EL HALLAZGO',
+        'evidencia': u'EVIDENCIA',
+        'skills': u'Con qué trabajo',
+        'skills_sec': u'SKILLS',
+        'cierre': u'Dónde verlo funcionando',
+        'cierre_sec': u'CIERRE',
+        'cierre_big': u'Todo lo que está acá se puede abrir y tocar.',
+        'cierre_p': [
+            u'La página corre en el navegador, con los proyectos en modo interactivo: '
+            u'cada recorrido se camina etapa por etapa con tus propios datos.',
+            u'Cada proyecto tiene además su propia ficha en PDF, con el recorrido '
+            u'completo, la tabla de evaluaciones y todas las pantallas.',
+        ],
+        'cierre_nota': u'SIN DATOS DE CONTACTO EN ESTE DOCUMENTO. GENERADO DESDE EL '
+                       u'MISMO CONTENIDO QUE LA PÁGINA.',
+        'la_pagina': u'LA PÁGINA',
+        'anio': u'AÑO',
+        'stack': u'STACK',
+    },
+    'en': {
+        'doc': u'DOSSIER // 2026',
+        'claim': u'I build products that make sense on the first tap and hold up in '
+                 u'their second year.',
+        'sub': u'Flutter apps for phone, desktop and web. Language-model systems that '
+               u'report what they did and what it cost. One codebase, several screens, '
+               u'and measured numbers instead of adjectives.',
+        'pie_portada': u'%d PROJECTS · EACH ONE WITH ITS NUMBERS',
+        'por_que': u'Why this looks the way it does',
+        'por_que_sec': u'FIRST IMPRESSION',
+        'por_que_big': u'The first thing you see is already a sample of the work.',
+        'por_que_p': u'This document comes out of a site built in Flutter, the same tool '
+                     u'I would build your product with: one codebase running on Android, '
+                     u'iOS, desktop and the browser. It is not a bought template or a '
+                     u'WordPress theme. If you like how it moves, that is exactly what I '
+                     u'know how to do.',
+        'b1': u'<b>The cyberpunk styling is not decoration, it is a load test.</b> '
+              u'Glitches, sweeps, particles and a living grid are about the most '
+              u'expensive thing you can ask of an interface. Running all of it smoothly, '
+              u'on a phone too, is the proof that performance is not negotiable: the '
+              u'background went from 614 draw calls to 11, measured by a test and not by '
+              u'eye.',
+        'b2': u'<b>And it is a way of looking at a product.</b> A dark console forces '
+              u'what I ask of any system: every number in sight, every state with a name '
+              u'—waiting for network, retrying in 8 seconds— and nothing faking progress '
+              u'that is not happening.',
+        'b3': u'<b>With respect for whoever uses it.</b> Every effect switches off in one '
+              u'click and the page is still the same page, readable and complete. A '
+              u'product that only works if the user likes the glow is not a product: it '
+              u'is a trick.',
+        'leer': u'HOW TO READ EACH PROJECT',
+        'leer_p': [
+            u'Every project takes two pages, and neither of them is a brochure.',
+            u'<b>The first</b> says which problem it solves, what it is built with and '
+            u'what was measured. The numbers come from real runs: latencies, tests, rates.',
+            u'<b>The second</b> opens the whole path, stage by stage, from input to '
+            u'output, and ends in the finding: the decision that defines the project, '
+            u'including the ones that turned out wrong.',
+            u'<b>Work projects</b> are described at the architecture level: layers, '
+            u'synchronisation, evidence. No business rules, no client names, and the '
+            u'screenshots redacted.',
+        ],
+        'leer_pie': u'THREE PROJECTS WITH OPEN CODE, THREE FROM WORK WITH CLOSED CODE '
+                    u'AND ONE OF MY OWN ON ITS WAY TO THE STORE.',
+        'indice': u'What is inside',
+        'indice_sec': u'CONTENTS',
+        'indice_lead': u'Seven projects, each with the problem it solves, the numbers '
+                       u'that were measured and the decision that defines it.',
+        'perfiles': u'The same work, told two ways',
+        'perfiles_sec': u'PROFILES',
+        'perfil': u'PROFILE %02d',
+        'experiencia': u'Experience',
+        'experiencia_sec': u'EXPERIENCE',
+        'actual': u'CURRENT',
+        'proyecto': u'PROJECT %02d / %02d',
+        'medido': u'MEASURED',
+        'hecho_con': u'BUILT WITH',
+        'codigo': u'CODE',
+        'privado': u'PRIVATE CODE',
+        'privado_nota': u'The code is private. What is written here is how the work was '
+                        u'organised, not what the product shows on screen.',
+        'como_funciona': u'How it works',
+        'recorrido': u'THE PATH',
+        'hallazgo': u'THE FINDING',
+        'evidencia': u'EVIDENCE',
+        'skills': u'What I work with',
+        'skills_sec': u'SKILLS',
+        'cierre': u'Where to see it running',
+        'cierre_sec': u'CLOSING',
+        'cierre_big': u'Everything in here can be opened and touched.',
+        'cierre_p': [
+            u'The site runs in the browser with the projects in interactive mode: every '
+            u'path is walked stage by stage with your own input.',
+            u'Each project also has its own brief in PDF, with the full path, the '
+            u'evaluation table and every screen.',
+        ],
+        'cierre_nota': u'NO CONTACT DETAILS IN THIS DOCUMENT. GENERATED FROM THE SAME '
+                       u'CONTENT AS THE SITE.',
+        'la_pagina': u'THE SITE',
+        'anio': u'YEAR',
+        'stack': u'STACK',
+    },
 }
-.page:last-child { page-break-after: auto; }
 
-/* Rejilla tenue, como el fondo de la página. */
-.page::before {
-  content: ''; position: absolute; inset: 0; opacity: .5;
-  background-image:
-    linear-gradient(to right, #12142440 1px, transparent 1px),
-    linear-gradient(to bottom, #12142440 1px, transparent 1px);
-  background-size: 18mm 18mm;
-}
-.page > * { position: relative; }
+SITIO = u'agusg197.github.io'
 
-.hud { display: flex; align-items: center; gap: 8px; margin-bottom: 6mm; }
-.tag {
-  background: #FCEE0A; color: #07070C; font-family: Consolas, monospace;
-  font-size: 8pt; letter-spacing: 2px; padding: 2px 7px; font-weight: 700;
-}
-.hud .via { font-family: Consolas, monospace; font-size: 8pt; color: #4B5273; letter-spacing: 2px; }
-.hud .right { margin-left: auto; font-family: Consolas, monospace; font-size: 8pt; color: #4B5273; letter-spacing: 2px; }
+# Lo que se agrega sobre la hoja base de las fichas.
+CSS = fichas.CSS + u'''
+.cover2 { justify-content: center; }
+.cover2 .who { font-family: Consolas, monospace; font-size: 9pt; letter-spacing: 4px;
+               color: #FCEE0A; }
+.cover2 h1 { font-size: 58pt; margin-top: 5mm; text-shadow: 1.4px 0 #FF2A6D, -1.4px 0 #00F0FF; }
+.cover2 .claim { font-family: Bahnschrift, sans-serif; font-size: 25pt; line-height: 1.14;
+                 color: #E6F1FF; margin-top: 8mm; max-width: 152mm; font-weight: 600; }
+.cover2 .sub { font-size: 10.5pt; color: #8A93B2; margin-top: 5mm; max-width: 145mm;
+               line-height: 1.55; }
+.portrait { position: absolute; right: 16mm; top: 50%; transform: translateY(-50%);
+            width: 90mm; border: 1px solid #1B1E33;
+            clip-path: polygon(0 0, calc(100% - 12mm) 0, 100% 12mm, 100% 100%,
+                               12mm 100%, 0 calc(100% - 12mm)); }
 
-h1 { font-family: Bahnschrift, 'Segoe UI', sans-serif; font-weight: 700; font-size: 58pt;
-     line-height: .92; margin: 0; letter-spacing: -1px;
-     text-shadow: 2px 0 #FF2A6D, -2px 0 #00F0FF; }
-h2 { font-family: Bahnschrift, 'Segoe UI', sans-serif; font-weight: 700; font-size: 30pt;
-     margin: 0 0 1mm; letter-spacing: -.5px; }
-h3 { font-family: Bahnschrift, 'Segoe UI', sans-serif; font-weight: 600; font-size: 13pt;
-     margin: 0 0 2mm; color: #E6F1FF; }
-p { font-size: 10.2pt; line-height: 1.45; color: #8A93B2; margin: 0 0 2.5mm; }
-p strong, .lead strong { color: #E6F1FF; font-weight: 600; }
-.lead { font-size: 12pt; color: #E6F1FF; }
-.mono { font-family: Consolas, monospace; }
-.dim { color: #4B5273; }
-
-.rule { height: 3px; background: repeating-linear-gradient(
-  -45deg, #FCEE0A 0 6px, transparent 6px 12px); margin: 3mm 0 5mm; }
-
-.cols { display: flex; gap: 10mm; flex: 1; min-height: 0; }
-.col { flex: 1; min-width: 0; }
-
-.metrics { display: flex; gap: 8mm; margin: 3mm 0; flex-wrap: wrap; }
-.metric .v { font-family: Bahnschrift, sans-serif; font-weight: 700; font-size: 22pt; line-height: 1; }
-.metric .l { font-family: Consolas, monospace; font-size: 7.5pt; color: #8A93B2;
-             letter-spacing: 1px; text-transform: uppercase; margin-top: 1mm; }
-
-.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3mm; }
-.chip { font-family: Consolas, monospace; font-size: 7.5pt; padding: 2px 6px;
-        border: 1px solid #1B1E33; color: #8A93B2; }
-
-.panel { border: 1px solid #1B1E33; background: #0E0F1A; padding: 4mm; }
-.panel .k { font-family: Consolas, monospace; font-size: 7.5pt; letter-spacing: 2px;
-            color: #4B5273; text-transform: uppercase; margin-bottom: 2mm; }
-
-/* Las capturas nunca pueden pisar la columna de texto: se limitan por ancho
-   ademas de por alto, porque no todas tienen la misma proporcion. */
-.shots { display: flex; gap: 5mm; align-items: flex-start; justify-content: flex-end;
-         height: 100%; overflow: hidden; }
-.shots img { border: 1px solid #1B1E33; max-height: 118mm; max-width: calc(50% - 3mm);
-             width: auto; height: auto; object-fit: contain; }
-.shots.one img { max-width: 100%; }
-.shots.wide img { max-height: 92mm; max-width: 100%; }
-
-.toc { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 10mm; margin-top: 4mm; }
-.toc a { text-decoration: none; color: #E6F1FF; display: flex; align-items: baseline;
-         gap: 4px; font-size: 11pt; border-bottom: 1px solid #12142A; padding-bottom: 2mm; }
-.toc a .n { font-family: Consolas, monospace; color: #FCEE0A; font-size: 8pt; letter-spacing: 1px; }
-.toc a .d { margin-left: auto; font-family: Consolas, monospace; color: #4B5273; font-size: 8pt; }
-
-.exp { border-left: 2px solid #1B1E33; padding-left: 5mm; margin-bottom: 5mm; }
-.exp .when { font-family: Consolas, monospace; font-size: 8pt; color: #FCEE0A; letter-spacing: 1px; }
-.exp h3 { margin: 1mm 0 1mm; }
-.exp .where { font-family: Consolas, monospace; font-size: 8.5pt; color: #00F0FF; margin-bottom: 2mm; }
-.exp ul { margin: 0; padding-left: 4mm; }
-.exp li { font-size: 9.5pt; color: #8A93B2; line-height: 1.45; margin-bottom: 1.5mm; }
-
-.stages { margin-top: 3mm; }
-.stage { display: flex; gap: 3mm; align-items: baseline; margin-bottom: 1.4mm; }
-.stage .n { font-family: Consolas, monospace; font-size: 8pt; color: #4B5273; }
-.stage .t { font-family: Consolas, monospace; font-size: 9pt; color: #E6F1FF; letter-spacing: 1px; }
-
-.cover { justify-content: center; }
-.cover .claim { font-family: Bahnschrift, sans-serif; font-size: 27pt; line-height: 1.12;
-                color: #E6F1FF; margin-top: 8mm; max-width: 158mm; font-weight: 600; }
-.cover .sub2 { font-size: 10.5pt; color: #8A93B2; margin-top: 5mm; max-width: 145mm;
-               line-height: 1.5; }
-p b { color: #E6F1FF; font-weight: 600; }
-
-.why { display: flex; gap: 10mm; flex: 1; min-height: 0; }
+.why { display: flex; gap: 11mm; flex: 1; min-height: 0; }
 .why .col { flex: 1; min-width: 0; }
 .why .big { font-family: Bahnschrift, sans-serif; font-size: 16pt; color: #E6F1FF;
             line-height: 1.25; margin-bottom: 4mm; }
-.why p { font-size: 9.8pt; line-height: 1.48; }
+.why p { font-size: 9.8pt; line-height: 1.5; }
 .why .bullet { display: flex; gap: 4mm; }
 .why .bullet .n { font-family: Consolas, monospace; font-size: 8pt; color: #FCEE0A;
                   padding-top: 1mm; }
 .why .bullet .b { flex: 1; min-width: 0; }
-.cover .who { font-family: Consolas, monospace; font-size: 9pt; letter-spacing: 4px; color: #FCEE0A; }
-.cover .sub { font-family: Bahnschrift, sans-serif; font-size: 17pt; color: #00F0FF; margin-top: 3mm; }
-.cover .foot { position: absolute; left: 16mm; right: 16mm; bottom: 10mm;
-               display: flex; font-family: Consolas, monospace; font-size: 8pt;
-               color: #4B5273; letter-spacing: 2px; }
-.cover .foot .r { margin-left: auto; }
-.portrait { position: absolute; right: 16mm; top: 50%; transform: translateY(-50%);
-            width: 92mm; border: 1px solid #1B1E33;
-            clip-path: polygon(0 0, calc(100% - 12mm) 0, 100% 12mm, 100% 100%, 12mm 100%, 0 calc(100% - 12mm)); }
 
-.skills { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6mm; margin-top: 4mm; }
-.skills .cat .k { font-family: Consolas, monospace; font-size: 8pt; letter-spacing: 2px;
-                  color: #FF2A6D; text-transform: uppercase; margin-bottom: 2mm; }
+.toc { margin-top: 5mm; }
+.toc .row { display: flex; align-items: baseline; gap: 6mm; font-size: 11.5pt;
+            border-bottom: 1px solid #12142A; padding: 2.6mm 0; }
+.toc .row .n { font-family: Consolas, monospace; color: #FCEE0A; font-size: 8.5pt;
+               letter-spacing: 1px; min-width: 16mm; }
+.toc .row .d { margin-left: auto; font-family: Consolas, monospace; color: #3C4363;
+               font-size: 8.5pt; }
 
-.note { font-size: 9pt; color: #4B5273; }
-a.repo { font-family: Consolas, monospace; font-size: 8.5pt; color: #00F0FF; text-decoration: none; }
+.exp { border-left: 2px solid #1B1E33; padding-left: 5mm; margin-bottom: 6mm; }
+.exp .when { font-family: Consolas, monospace; font-size: 8pt; color: #FCEE0A;
+             letter-spacing: 1px; }
+.exp h3 { margin: 1.5mm 0; }
+.exp .where { font-family: Consolas, monospace; font-size: 8.5pt; color: #00F0FF;
+              margin-bottom: 2mm; }
+.exp ul { margin: 0 0 2.5mm; padding-left: 4mm; }
+.exp li { font-size: 9.4pt; color: #8A93B2; line-height: 1.45; margin-bottom: 1.5mm; }
+
+.skills { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10mm; margin-top: 5mm;
+          flex: 1; align-content: space-between; }
+.skills .cat .kk { font-family: Consolas, monospace; font-size: 9pt; letter-spacing: 2px;
+                   color: #FF2A6D; text-transform: uppercase; margin-bottom: 3mm;
+                   border-bottom: 1px solid #1B1E33; padding-bottom: 2mm; }
+.skills .chip { font-size: 8.5pt; padding: 3px 8px; }
+
+/* Las dos capturas que acompanan a cada proyecto en el dossier. */
+.par { display: flex; gap: 5mm; flex: 1; min-height: 0; align-items: flex-start;
+       justify-content: center; }
+.par.apilado { flex-direction: column; align-items: center; }
+/* Dos capturas al lado: cada una entra en su mitad, si no la de la derecha se
+   sale de la hoja. */
+.par img { border: 1px solid #1B1E33; max-width: calc((100% - 5mm) / 2);
+           max-height: 132mm; width: auto; height: auto; object-fit: contain; }
+.par.apilado img { max-height: 63mm; max-width: 100%; }
+.par.sola img { max-width: 100%; }
+
+.pasos { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm 11mm; align-content: start; }
+.paso { display: flex; gap: 4mm; }
+.paso .n { font-family: Consolas, monospace; font-size: 8pt; padding-top: 1.5mm; }
+.paso .b { flex: 1; min-width: 0; }
+.paso h3 { font-size: 12pt; margin-bottom: 1.5mm; }
+.paso p { font-size: 9.3pt; line-height: 1.45; margin: 0; }
 '''
 
 
-def build_html(data):
-    person = data['person']
-    perfiles = data['profiles']
-    proyectos = {p['id']: p for p in data['projects']}
-    orden = perfiles[0]['projectOrder']
+class Dossier(object):
+    """Las paginas se juntan primero y se numeran despues, porque el indice
+    necesita saber en que hoja cae cada proyecto."""
 
-    out = []
-    a = out.append
-    a(u'<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">')
-    a(u'<title>Dossier — %s</title>' % esc(person['name']))
-    a(u'<style>%s</style></head><body>' % CSS)
+    def __init__(self, lang, autor):
+        self.lang = lang
+        self.autor = autor
+        self.L = PROSA[lang]
+        self.paginas = []
 
-    # ------------------------------------------------------------- portada ---
-    foto = b64(os.path.join(ROOT, person.get('photo', '').replace('/', os.sep))) if person.get('photo') else None
-    a(u'<section class="page cover" id="portada">')
-    a(u'<div class="who">DOSSIER // 2026</div>')
-    a(u'<h1>%s</h1>' % esc(person['name']))
-    a(u'<div class="claim">Construyo productos que se entienden en el primer toque '
-      u'y aguantan el segundo año.</div>')
-    a(u'<div class="sub2">Apps en Flutter para teléfono, escritorio y web. Sistemas con '
-      u'modelos de lenguaje que dicen qué hicieron y cuánto costaron. Un solo código, '
-      u'varias pantallas, y números medidos en vez de adjetivos.</div>')
+    def add(self, seccion, cuerpo, acento='#00F0FF', clase=u'', etiqueta=None):
+        self.paginas.append((seccion, cuerpo, acento, clase, etiqueta))
+        return len(self.paginas)
+
+    def render(self, titulo):
+        total = len(self.paginas)
+        out = [u'<!DOCTYPE html><html lang="%s"><head><meta charset="utf-8">' % self.lang,
+               u'<title>%s</title>' % esc(titulo),
+               u'<style>%s</style></head><body>' % CSS]
+        for i, (seccion, cuerpo, acento, clase, etiqueta) in enumerate(self.paginas, start=1):
+            out.append(u'<section class="page %s">' % clase)
+            if seccion is not None:
+                out.append(
+                    u'<div class="hud"><span class="tag" style="background:%s">%s</span>'
+                    u'<span class="sec">%s</span><span class="via">// %s</span>'
+                    u'<span class="right">%02d / %02d</span></div>'
+                    % (acento, esc(etiqueta or self.L['doc'].split(' ')[0]),
+                       esc(seccion.upper()), esc(self.L['doc']), i, total))
+            out.append(cuerpo)
+            if 'cover2' not in clase:   # la portada trae su propio pie
+                out.append(
+                    u'<div class="foot"><span>%s · %s</span>'
+                    u'<span class="r">%02d / %02d</span></div>'
+                    % (esc(self.autor.upper()), esc(self.L['doc']), i, total))
+            out.append(u'</section>')
+        out.append(u'</body></html>')
+        return u'\n'.join(out)
+
+
+# --------------------------------------------------------------------- hojas ---
+
+def portada(doc, data, lang):
+    L, person = doc.L, data['person']
+    a = []
+    a.append(u'<div class="who">%s</div>' % L['doc'])
+    a.append(u'<h1>%s</h1>' % esc(person['name']))
+    a.append(u'<div class="claim">%s</div>' % esc(L['claim']))
+    a.append(u'<div class="sub">%s</div>' % esc(L['sub']))
+    foto = person.get('photo')
     if foto:
-        a(u'<img class="portrait" src="%s" alt="">' % foto)
-    a(u'<div class="foot"><span>%s</span>'
-      u'<span class="r">%d PROYECTOS · CADA UNO CON SUS NÚMEROS</span></div>'
-      % (esc(t(person['location'])).upper(), len(orden)))
-    a(u'</section>')
+        dato = img_b64(os.path.join(ROOT, foto.replace('/', os.sep)), 1100)
+        if dato:
+            a.append(u'<img class="portrait" src="%s" alt="">' % dato[0])
+    a.append(u'<div class="foot"><span>%s</span><span class="r">%s</span></div>'
+             % (esc(t(person['location'], lang)).upper(),
+                L['pie_portada'] % len(data['profiles'][0]['projectOrder'])))
+    doc.add(None, u'\n'.join(a), clase=u'cover2')
 
-    # ----------------------------------------------------- por qué se ve así ---
-    a(u'<section class="page" id="intro">')
-    a(u'<div class="hud"><span class="tag">%s</span>'
-      u'<span class="via">// PRIMERA IMPRESION</span>'
-      u'<span class="right">DOSSIER // 2026</span></div>' % sec_tag(1))
-    a(u'<h2>Por qué esto se ve así</h2><div class="rule"></div>')
-    a(u'<div class="why"><div class="col">')
-    a(u'<div class="big">Lo primero que ves ya es una muestra del trabajo.</div>')
-    a(u'<p>Este documento sale de una página hecha en Flutter, la misma herramienta con la '
-      u'que construiría tu producto: un solo código que corre en Android, iOS, escritorio y '
-      u'navegador. No es una plantilla comprada ni un tema de WordPress. Si te gusta cómo se '
-      u'mueve, eso es exactamente lo que sé hacer.</p>')
-    a(u'<div class="bullet"><span class="n">01</span><div class="b"><p>'
-      u'<b>El estilo cyberpunk no es decoración, es una prueba de carga.</b> Glitches, '
-      u'barridos, partículas y una grilla viva son de lo más caro que se le puede pedir a una '
-      u'interfaz. Que todo eso corra fluido, también en un teléfono, es la demostración de que '
-      u'el rendimiento no se negocia: el fondo pasó de 614 llamadas de dibujo a 11, medidas '
-      u'con un test y no a ojo.</p></div></div>')
-    a(u'<div class="bullet"><span class="n">02</span><div class="b"><p>'
-      u'<b>Y es una manera de mirar el producto.</b> Un tablero oscuro obliga a lo que le pido '
-      u'a cualquier sistema: que cada número esté a la vista, que cada estado tenga nombre '
-      u'—esperando red, reintentando en 8 segundos— y que nada finja un progreso que no '
-      u'existe. Acá no hay barras de carga decorativas.</p></div></div>')
-    a(u'<div class="bullet"><span class="n">03</span><div class="b"><p>'
-      u'<b>Con respeto por quien lo usa.</b> Todos los efectos se apagan de un clic y la '
-      u'página sigue siendo la misma, legible y completa. Un producto que solo funciona si al '
-      u'usuario le gusta el brillo no es un producto: es un truco.</p></div></div>')
-    a(u'</div>')
-    a(u'<div class="col"><div class="panel" style="height:100%;border-left:3px solid #00F0FF">')
-    a(u'<div class="k">CÓMO LEER CADA PROYECTO</div>')
-    a(u'<p>Las siete fichas que siguen tienen la misma forma, y ninguna es un folleto.</p>')
-    a(u'<p><b>Qué problema resuelve</b>, en una frase que no usa palabras de venta.</p>')
-    a(u'<p><b>El recorrido</b>: las etapas por las que pasa el sistema, de la entrada a la '
-      u'salida. En la página se caminan una por una con tus propios datos; acá quedan '
-      u'listadas.</p>')
-    a(u'<p><b>Los números</b>: tiempos, tests, tasas. Si algo no se midió, no está escrito '
-      u'como si se hubiera medido.</p>')
-    a(u'<p><b>El hallazgo</b>: la decisión que define el proyecto, incluidas las que salieron '
-      u'al revés. Dos optimizaciones que llevaron trabajo se midieron y se descartaron, y eso '
-      u'también está escrito.</p>')
-    a(u'<div class="rule" style="margin:5mm 0"></div>')
-    a(u'<p class="mono" style="font-size:9pt">Tres proyectos con el código abierto, tres de '
-      u'trabajo con el código cerrado y uno propio en camino a la tienda.</p>')
-    a(u'</div></div></div></section>')
 
-    # --------------------------------------------------------------- índice ---
-    a(u'<section class="page" id="indice">')
-    a(u'<div class="hud"><span class="tag">%s</span><span class="via">// INDICE</span>'
-      u'<span class="right">DOSSIER // 2026</span></div>' % sec_tag(2))
-    a(u'<h2>Qué hay acá adentro</h2><div class="rule"></div>')
-    a(u'<p class="lead">Siete proyectos, cada uno con el problema que resuelve, los '
-      u'números que se midieron y la decisión que lo define. Los títulos de esta lista llevan '
-      u'a su página.</p>')
-    a(u'<div class="toc">')
-    entradas = [(u'Por qué esto se ve así', 'intro', u'la primera impresión'),
-                (u'Los dos perfiles', 'perfiles', u'cómo trabajo'),
-                (u'Experiencia', 'experiencia', u'dónde estuve')]
-    for pid in orden:
-        pr = proyectos[pid]
-        entradas.append((pr['name'], 'p-' + pid, t(pr['tagline'])))
-    entradas.append((u'Skills', 'skills', u'con qué trabajo'))
-    for i, (titulo, ancla, desc) in enumerate(entradas, start=1):
-        a(u'<a href="#%s"><span class="n">%02d</span><span>%s</span><span class="d">%s</span></a>'
-          % (ancla, i, esc(titulo), esc(desc)))
-    a(u'</div></section>')
+def por_que(doc):
+    L = doc.L
+    a = []
+    a.append(u'<h2>%s</h2><div class="rule" style="background:%s"></div>'
+             % (esc(L['por_que']), stripes('#FCEE0A')))
+    a.append(u'<div class="why"><div class="col">')
+    a.append(u'<div class="big">%s</div>' % esc(L['por_que_big']))
+    a.append(u'<p>%s</p>' % esc(L['por_que_p']))
+    for i, b in enumerate((L['b1'], L['b2'], L['b3']), start=1):
+        a.append(u'<div class="bullet"><span class="n">%02d</span><div class="b"><p>%s</p>'
+                 u'</div></div>' % (i, b))
+    a.append(u'</div><div class="col">')
+    a.append(u'<div class="panel" style="height:100%;border-left:3px solid #00F0FF;'
+             u'display:flex;flex-direction:column">')
+    a.append(u'<div class="k">%s</div>' % esc(L['leer']))
+    for p in L['leer_p']:
+        a.append(u'<p>%s</p>' % p)
+    a.append(u'<div style="margin-top:auto">')
+    a.append(u'<div class="rule" style="margin:5mm 0 3mm;background:%s"></div>' % stripes('#FCEE0A'))
+    a.append(u'<p class="mono" style="font-size:8.5pt;line-height:1.6;margin:0">%s</p>'
+             % esc(L['leer_pie']))
+    a.append(u'</div></div></div></div>')
+    doc.add(L['por_que_sec'], u'\n'.join(a), '#FCEE0A')
 
-    # ------------------------------------------------------------- perfiles ---
-    a(u'<section class="page" id="perfiles">')
-    a(u'<div class="hud"><span class="tag">%s</span><span class="via">// PERFILES</span>'
-      u'<span class="right">02 / %02d</span></div>' % (sec_tag(3), len(entradas)))
-    a(u'<h2>El mismo trabajo, contado de dos maneras</h2><div class="rule"></div>')
-    a(u'<div class="cols">')
+
+def indice(doc):
+    L = doc.L
+    a = []
+    a.append(u'<h2>%s</h2><div class="rule" style="background:%s"></div>'
+             % (esc(L['indice']), stripes('#FCEE0A')))
+    a.append(u'<p class="lead">%s</p>' % esc(L['indice_lead']))
+    a.append(u'{{TOC}}')
+    return doc.add(L['indice_sec'], u'\n'.join(a), '#FCEE0A')
+
+
+def perfiles(doc, data, lang):
+    L = doc.L
+    a = []
+    a.append(u'<h2>%s</h2><div class="rule" style="background:%s"></div>'
+             % (esc(L['perfiles']), stripes('#00F0FF')))
+    a.append(u'<div class="cols">')
     colores = ['#00F0FF', '#FF2A6D']
-    for i, perfil in enumerate(perfiles):
-        a(u'<div class="col"><div class="panel" style="height:100%%;border-color:%s">' % colores[i])
-        a(u'<div class="k">PERFIL %02d</div>' % (i + 1))
-        a(u'<h3 style="color:%s;font-size:16pt">%s</h3>' % (colores[i], esc(t(perfil['label']))))
-        a(u'<p class="mono" style="font-size:9pt;color:#E6F1FF">%s</p>' % esc(t(perfil['headline'])))
-        a(u'<p>%s</p>' % esc(t(perfil['bio'])))
-        a(u'<div class="metrics">')
+    for i, perfil in enumerate(data['profiles']):
+        a.append(u'<div class="col"><div class="panel" style="flex:1;border-color:%s">'
+                 % colores[i])
+        a.append(u'<div class="k">%s</div>' % (L['perfil'] % (i + 1)))
+        a.append(u'<h3 style="color:%s;font-size:17pt">%s</h3>'
+                 % (colores[i], esc(t(perfil['label'], lang))))
+        a.append(u'<p class="mono" style="font-size:9pt;color:#E6F1FF">%s</p>'
+                 % esc(t(perfil['headline'], lang)))
+        a.append(u'<p>%s</p>' % esc(t(perfil['bio'], lang)))
+        a.append(u'<div class="metrics" style="margin-top:auto">')
         for st in perfil['stats']:
-            valor = u'%s%s' % (st['value'], st.get('suffix', '') or '')
-            a(u'<div class="metric"><div class="v" style="color:%s">%s</div>'
-              u'<div class="l">%s</div></div>' % (colores[i], esc(valor), esc(t(st['label']))))
-        a(u'</div></div></div>')
-    a(u'</div></section>')
+            valor = u'%s%s' % (st['value'], st.get('suffix') or '')
+            a.append(u'<div class="metric"><div class="v" style="color:%s">%s</div>'
+                     u'<div class="l">%s</div></div>'
+                     % (colores[i], esc(num(valor, lang)), esc(t(st['label'], lang))))
+        a.append(u'</div></div></div>')
+    a.append(u'</div>')
+    doc.add(L['perfiles_sec'], u'\n'.join(a), '#00F0FF')
 
-    # ----------------------------------------------------------- experiencia ---
-    a(u'<section class="page" id="experiencia">')
-    a(u'<div class="hud"><span class="tag">%s</span><span class="via">// EXPERIENCIA</span>'
-      u'<span class="right">03 / %02d</span></div>' % (sec_tag(4), len(entradas)))
-    a(u'<h2>Experiencia</h2><div class="rule"></div>')
-    a(u'<div class="cols"><div class="col">')
+
+def experiencia(doc, data, lang):
+    L = doc.L
+    a = []
+    a.append(u'<h2>%s</h2><div class="rule" style="background:%s"></div>'
+             % (esc(L['experiencia']), stripes('#00F0FF')))
+    a.append(u'<div class="cols"><div class="col">')
     mitad = (len(data['experience']) + 1) // 2
     for i, e in enumerate(data['experience']):
         if i == mitad:
-            a(u'</div><div class="col">')
-        a(u'<div class="exp">')
-        a(u'<div class="when">%s</div>' % esc(t(e['period'])))
-        a(u'<h3>%s</h3>' % esc(t(e['role'])))
-        a(u'<div class="where">%s</div>' % esc(e['company']))
-        a(u'<p style="font-size:9.5pt">%s</p>' % esc(t(e['summary'])))
-        a(u'<ul>')
-        for h in e['highlights'][:2]:
-            a(u'<li>%s</li>' % esc(t(h)))
-        a(u'</ul>')
-        a(u'<div class="chips">')
+            a.append(u'</div><div class="col">')
+        a.append(u'<div class="exp">')
+        a.append(u'<div class="when">%s%s</div>'
+                 % (esc(t(e['period'], lang)),
+                    u'  ·  ' + L['actual'] if e.get('current') else u''))
+        a.append(u'<h3>%s</h3>' % esc(t(e['role'], lang)))
+        a.append(u'<div class="where">%s</div>' % esc(e['company']))
+        a.append(u'<p style="font-size:9.6pt">%s</p>' % esc(t(e['summary'], lang)))
+        a.append(u'<ul>')
+        for h in e['highlights'][:3]:
+            a.append(u'<li>%s</li>' % esc(num(t(h, lang), lang)))
+        a.append(u'</ul>')
+        a.append(u'<div class="chips">')
         for s in e['stack'][:6]:
-            a(u'<span class="chip">%s</span>' % esc(s))
-        a(u'</div></div>')
-    a(u'</div></div></section>')
+            a.append(u'<span class="chip">%s</span>' % esc(s))
+        a.append(u'</div></div>')
+    a.append(u'</div></div>')
+    doc.add(L['experiencia_sec'], u'\n'.join(a), '#00F0FF')
 
-    # ------------------------------------------------------------ proyectos ---
-    acentos = {'cyan': '#00F0FF', 'yellow': '#FCEE0A', 'magenta': '#FF2A6D', 'violet': '#7A5CFF'}
-    for n, pid in enumerate(orden, start=4):
-        pr = proyectos[pid]
-        acento = acentos.get(pr.get('accent'), '#00F0FF')
-        a(u'<section class="page" id="p-%s">' % pid)
-        a(u'<div class="hud"><span class="tag">%s</span>'
-          u'<span class="via">// %s</span><span class="right">%02d / %02d</span></div>'
-          % (sec_tag(n + 1), esc(pid.upper()), n, len(entradas)))
-        a(u'<div class="cols">')
 
-        # --- texto
-        a(u'<div class="col" style="flex:1.25">')
-        a(u'<h2 style="color:%s">%s</h2>' % (acento, esc(pr['name'])))
-        a(u'<div class="mono" style="color:%s;font-size:10pt;letter-spacing:1px">%s</div>'
-          % (acento, esc(t(pr['tagline']))))
-        a(u'<div class="rule" style="background:repeating-linear-gradient(-45deg,%s 0 6px,transparent 6px 12px)"></div>' % acento)
-        a(u'<p>%s</p>' % esc(t(pr['description'])))
-        if pr.get('metrics'):
-            a(u'<div class="metrics">')
-            for m in pr['metrics']:
-                a(u'<div class="metric"><div class="v" style="color:%s">%s</div>'
-                  u'<div class="l">%s</div></div>' % (acento, esc(m['value']), esc(t(m['label']))))
-            a(u'</div>')
-        if pr.get('pipeline'):
-            a(u'<div class="stages">')
-            a(u'<div class="k mono" style="font-size:7.5pt;letter-spacing:2px;color:#4B5273;'
-              u'text-transform:uppercase;margin-bottom:2mm">EL RECORRIDO</div>')
-            for i, st in enumerate(pr['pipeline'], start=1):
-                a(u'<div class="stage"><span class="n">%02d</span>'
-                  u'<span class="t">%s</span></div>' % (i, esc(t(st['title']).upper())))
-            a(u'</div>')
-        hallazgo = None
-        if pr.get('evals') and pr['evals'].get('finding'):
-            hallazgo = t(pr['evals']['finding'])
-        elif pr.get('pipeline'):
-            for st in pr['pipeline']:
-                if st.get('risk'):
-                    hallazgo = t(st['risk'])
-                    break
-        if hallazgo:
-            corte = hallazgo if len(hallazgo) < 300 else hallazgo[:297].rsplit(' ', 1)[0] + u'…'
-            a(u'<div class="panel" style="margin-top:4mm;border-left:3px solid %s">' % acento)
-            a(u'<div class="k">EL HALLAZGO</div><p style="margin:0;font-size:9.5pt">%s</p></div>' % esc(corte))
-        a(u'<div class="chips">')
-        for tag in pr.get('tags', []):
-            a(u'<span class="chip" style="border-color:%s33;color:%s">%s</span>' % (acento, acento, esc(tag)))
-        a(u'</div>')
-        if pr.get('repoUrl'):
-            a(u'<div style="margin-top:3mm"><a class="repo" href="%s">%s</a></div>'
-              % (esc(pr['repoUrl']), esc(pr['repoUrl'].replace('https://', ''))))
-        elif pr.get('private'):
-            a(u'<div style="margin-top:3mm" class="mono dim" '
-              u'>CODIGO PRIVADO</div>')
-        a(u'</div>')
+def proyecto_que_es(doc, pr, lang, n, total):
+    """Primera hoja: que resuelve, con qué está hecho, qué se midió, y dos
+    capturas que muestran de qué se está hablando."""
+    L = doc.L
+    acento = ACENTOS.get(pr.get('accent'), '#00F0FF')
 
-        # --- capturas
-        shots = SHOTS.get(pid, [])
-        imgs = []
-        for nombre in shots:
-            src = b64(os.path.join(ROOT, 'assets', 'images', 'projects', pid, nombre))
-            if src:
-                imgs.append(src)
-        if imgs:
-            clases = u''
-            if pid == 'advisor':
-                clases = u' wide'
-            elif len(imgs) == 1:
-                clases = u' one'
-            a(u'<div class="col"><div class="shots%s">' % clases)
-            for src in imgs:
-                a(u'<img src="%s" alt="">' % src)
-            a(u'</div></div>')
-        a(u'</div></section>')
+    nombres = SHOTS.get(pr['id']) or [os.path.basename(g['image'])
+                                      for g in (pr.get('gallery') or [])[:2]]
+    imgs = []
+    for nombre in nombres:
+        dato = img_b64(os.path.join(ROOT, 'assets', 'images', 'projects', pr['id'], nombre), 950)
+        if dato:
+            imgs.append(dato)
+    # Una ventana de escritorio necesita ancho; dos capturas de telefono, no.
+    ancha = bool(imgs) and imgs[0][1] >= 0.6
 
-    # --------------------------------------------------------------- skills ---
-    # Las dos listas de skills, sin repetir categorias.
-    categorias = []
-    vistos = set()
-    for perfil in perfiles:
+    a = []
+    a.append(u'<div class="cols">')
+
+    a.append(u'<div class="col" style="flex:%s">' % (u'1' if ancha else u'1.3'))
+    a.append(u'<h2 style="color:%s">%s</h2>' % (acento, esc(pr['name'])))
+    a.append(u'<div class="mono" style="color:%s;font-size:10.5pt;letter-spacing:1px">%s</div>'
+             % (acento, esc(t(pr['tagline'], lang))))
+    a.append(u'<div class="rule" style="background:%s"></div>' % stripes(acento))
+    a.append(u'<p class="lead" style="font-size:11pt">%s</p>' % esc(t(pr['description'], lang)))
+    if pr.get('metrics'):
+        a.append(u'<div class="k" style="margin-top:5mm">%s</div><div class="metrics">'
+                 % L['medido'])
+        for m in pr['metrics']:
+            a.append(u'<div class="metric"><div class="v" style="color:%s">%s</div>'
+                     u'<div class="l">%s</div></div>'
+                     % (acento, esc(num(m['value'], lang)), esc(t(m['label'], lang))))
+        a.append(u'</div>')
+    if not pr.get('pipeline'):
+        a.append(u'<p style="margin-top:5mm">%s</p>' % esc(L['privado_nota']))
+    a.append(u'<div style="margin-top:auto">')
+    a.append(u'<div class="k">%s</div><div class="chips">' % L['hecho_con'])
+    for tag in pr.get('tags', []):
+        a.append(u'<span class="chip" style="border-color:%s55;color:%s">%s</span>'
+                 % (acento, acento, esc(fichas.ETIQUETAS_EN.get(tag, tag) if lang == 'en' else tag)))
+    a.append(u'</div>')
+    a.append(u'<div class="k" style="margin:4mm 0 1.5mm">%s</div>' % L['codigo'])
+    if pr.get('repoUrl'):
+        a.append(u'<div class="mono" style="font-size:8.5pt;color:%s">%s</div>'
+                 % (acento, esc(pr['repoUrl'].replace('https://', ''))))
+    else:
+        a.append(u'<div class="mono dim" style="font-size:8.5pt">%s</div>' % L['privado'])
+    a.append(u'</div></div>')
+
+    # --- las capturas
+    if imgs:
+        # Dos capturas al lado solo si son de telefono, que son angostas. Una
+        # ventana de escritorio al lado de otra no se lee: va sola y grande.
+        if ancha or len(imgs) == 1:
+            imgs, clase = imgs[:1], u' sola'
+        else:
+            clase = u''
+        a.append(u'<div class="col" style="flex:%s"><div class="par%s">'
+                 % (u'1.5' if ancha else u'1', clase))
+        for src, _ in imgs:
+            a.append(u'<img src="%s" alt="">' % src)
+        a.append(u'</div></div>')
+    a.append(u'</div>')
+    return doc.add(L['proyecto'] % (n, total), u'\n'.join(a), acento, etiqueta=pr['name'])
+
+
+def proyecto_como_funciona(doc, pr, lang, n, total):
+    """Segunda hoja: el recorrido entero y el hallazgo que define al proyecto."""
+    L = doc.L
+    etapas = pr.get('pipeline') or []
+    if not etapas:
+        return None
+    acento = ACENTOS.get(pr.get('accent'), '#00F0FF')
+    a = []
+    a.append(u'<h2>%s <span style="color:%s">%s</span></h2>'
+             % (esc(L['como_funciona']), acento, esc(pr['name'])))
+    a.append(u'<div class="rule" style="background:%s"></div>' % stripes(acento))
+    a.append(u'<div class="pasos">')
+    for i, st in enumerate(etapas, start=1):
+        a.append(u'<div class="paso"><span class="n" style="color:%s">%02d</span>'
+                 u'<div class="b"><h3>%s</h3><p>%s</p></div></div>'
+                 % (acento, i, esc(t(st['title'], lang)),
+                    esc(num(t(st.get('detail'), lang), lang))))
+    a.append(u'</div>')
+
+    ev = pr.get('evals') or {}
+    hallazgo = t(ev.get('finding'), lang)
+    if hallazgo:
+        a.append(u'<div class="panel" style="margin-top:auto;border-left:2px solid %s">' % acento)
+        a.append(u'<div class="k" style="margin-bottom:2mm">%s' % L['hallazgo'])
+        if t(ev.get('title'), lang):
+            a.append(u'<span style="color:#2F3550"> — %s · %s</span>'
+                     % (L['evidencia'], esc(num(t(ev['title'], lang), lang))))
+        a.append(u'</div>')
+        a.append(u'<p style="font-size:9.8pt;color:#C5CEE4;margin:0">%s</p>'
+                 % esc(num(hallazgo, lang)))
+        a.append(u'</div>')
+    return doc.add(L['proyecto'] % (n, total), u'\n'.join(a), acento, etiqueta=pr['name'])
+
+
+def skills(doc, data, lang):
+    L = doc.L
+    categorias, vistos = [], set()
+    for perfil in data['profiles']:
         for cat in perfil['skills']:
-            clave = t(cat['name'])
+            clave = t(cat['name'], lang)
             if clave in vistos:
                 continue
             vistos.add(clave)
             categorias.append(cat)
-    a(u'<section class="page" id="skills">')
-    a(u'<div class="hud"><span class="tag">%s</span><span class="via">// SKILLS</span>'
-      u'<span class="right">%02d / %02d</span></div>'
-      % (sec_tag(len(orden) + 5), len(entradas), len(entradas)))
-    a(u'<h2>Con qué trabajo</h2><div class="rule"></div>')
-    a(u'<div class="skills">')
+    a = []
+    a.append(u'<h2>%s</h2><div class="rule" style="background:%s"></div>'
+             % (esc(L['skills']), stripes('#FF2A6D')))
+    a.append(u'<div class="skills">')
     for cat in categorias:
-        a(u'<div class="cat"><div class="k">%s</div><div class="chips">' % esc(t(cat['name'])))
+        a.append(u'<div class="cat"><div class="kk">%s</div><div class="chips">'
+                 % esc(t(cat['name'], lang)))
         for it in cat['items']:
-            a(u'<span class="chip">%s</span>' % esc(it['name']))
-        a(u'</div></div>')
-    a(u'</div>')
-    a(u'<div style="margin-top:auto"><div class="rule"></div>'
-      u'<p class="note mono">SIN DATOS DE CONTACTO EN ESTE DOCUMENTO. '
-      u'GENERADO DESDE EL MISMO CONTENIDO QUE LA PAGINA.</p></div>')
-    a(u'</section>')
-
-    a(u'</body></html>')
-    return u'\n'.join(out)
+            nombre = it['name']
+            if lang == 'en':
+                nombre = fichas.ETIQUETAS_EN.get(nombre, nombre)
+            a.append(u'<span class="chip">%s</span>' % esc(nombre))
+        a.append(u'</div></div>')
+    a.append(u'</div>')
+    doc.add(L['skills_sec'], u'\n'.join(a), '#FF2A6D')
 
 
-def main():
-    data = json.load(io.open(os.path.join(ROOT, 'assets', 'data', 'portfolio.json'), encoding='utf-8'))
-    os.makedirs(OUT_DIR, exist_ok=True)
-    html = build_html(data)
-    io.open(HTML, 'w', encoding='utf-8').write(html)
-    print('html', len(html) // 1024, 'KB ->', os.path.relpath(HTML, ROOT))
+def cierre(doc, data, lang):
+    L = doc.L
+    a = []
+    a.append(u'<h2>%s</h2><div class="rule" style="background:%s"></div>'
+             % (esc(L['cierre']), stripes('#00F0FF')))
+    a.append(u'<div class="cols"><div class="col" style="flex:1.2">')
+    a.append(u'<div class="why"><div class="col">')
+    a.append(u'<div class="big" style="font-family:Bahnschrift,sans-serif;font-size:17pt;'
+             u'color:#E6F1FF;line-height:1.25;margin-bottom:5mm">%s</div>' % esc(L['cierre_big']))
+    for p in L['cierre_p']:
+        a.append(u'<p>%s</p>' % esc(p))
+    a.append(u'<div class="k" style="margin-top:6mm">%s</div>' % L['la_pagina'])
+    a.append(u'<div class="mono" style="font-size:13pt;color:#00F0FF">%s</div>' % SITIO)
+    a.append(u'</div></div></div>')
+    a.append(u'<div class="col"><div class="panel" '
+             u'style="flex:0 0 auto;border-left:2px solid #FCEE0A">')
+    a.append(u'<div class="k">%s</div>' % L['indice_sec'])
+    proyectos = {p['id']: p for p in data['projects']}
+    for pr in [proyectos[pid] for pid in data['profiles'][0]['projectOrder']]:
+        a.append(u'<div style="display:flex;gap:4mm;align-items:baseline;padding:2mm 0;'
+                 u'border-top:1px solid #14162A">'
+                 u'<span class="mono" style="font-size:9.5pt;color:%s;letter-spacing:1px;'
+                 u'min-width:32mm">%s</span>'
+                 u'<span style="font-size:9.4pt;color:#8A93B2">%s</span></div>'
+                 % (ACENTOS.get(pr.get('accent'), '#00F0FF'), esc(pr['name']),
+                    esc(t(pr['tagline'], lang))))
+    a.append(u'</div></div></div>')
+    a.append(u'<div style="margin-top:5mm"><div class="rule" style="margin:0 0 3mm;'
+             u'background:%s"></div>' % stripes('#1B1E33'))
+    a.append(u'<p class="mono" style="font-size:8pt;color:#3C4363;margin:0">%s</p></div>'
+             % esc(L['cierre_nota']))
+    doc.add(L['cierre_sec'], u'\n'.join(a), '#00F0FF')
 
-    navegador = next((n for n in NAVEGADORES if os.path.exists(n)), None)
-    if navegador is None:
-        print('No encontre Edge ni Chrome; el HTML queda listo para imprimir a mano.')
-        return 1
 
-    url = 'file:///' + HTML.replace('\\', '/')
-    cmd = [
-        navegador, '--headless=new', '--disable-gpu', '--no-first-run',
-        '--print-to-pdf=' + PDF, '--print-to-pdf-no-header',
-        url,
-    ]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
-    if not os.path.exists(PDF):
+def tabla_indice(entradas):
+    """Una sola columna: cada proyecto ocupa dos hojas y se lista como un rango,
+    en vez de repetir "como funciona" en una fila aparte."""
+    filas = []
+    for paginas, titulo, desc in entradas:
+        filas.append(u'<div class="row"><span class="n">%s</span><span>%s</span>'
+                     u'<span class="d">%s</span></div>'
+                     % (paginas, esc(titulo), esc(desc)))
+    return u'<div class="toc">%s</div>' % u''.join(filas)
+
+
+def construir(data, lang):
+    doc = Dossier(lang, data['person']['name'])
+    L = doc.L
+    orden = data['profiles'][0]['projectOrder']
+    proyectos = {p['id']: p for p in data['projects']}
+
+    portada(doc, data, lang)
+    entradas = []
+    por_que(doc)
+    entradas.append((u'02', L['por_que'], L['por_que_sec'].lower()))
+    indice(doc)
+    entradas.append((u'%02d' % (len(doc.paginas) + 1), L['perfiles'],
+                     L['perfiles_sec'].lower()))
+    perfiles(doc, data, lang)
+    entradas.append((u'%02d' % (len(doc.paginas) + 1), L['experiencia'],
+                     L['experiencia_sec'].lower()))
+    experiencia(doc, data, lang)
+
+    for i, pid in enumerate(orden, start=1):
+        pr = proyectos[pid]
+        pagina = proyecto_que_es(doc, pr, lang, i, len(orden))
+        pagina_b = proyecto_como_funciona(doc, pr, lang, i, len(orden))
+        rango = u'%02d' % pagina if pagina_b is None else u'%02d–%02d' % (pagina, pagina_b)
+        entradas.append((rango, pr['name'], t(pr['tagline'], lang)))
+
+    entradas.append((u'%02d' % (len(doc.paginas) + 1), L['skills'], L['skills_sec'].lower()))
+    skills(doc, data, lang)
+    entradas.append((u'%02d' % (len(doc.paginas) + 1), L['cierre'], L['cierre_sec'].lower()))
+    cierre(doc, data, lang)
+
+    titulo = u'%s — %s' % (u'Dossier', data['person']['name'])
+    return doc.render(titulo).replace(u'{{TOC}}', tabla_indice(entradas))
+
+
+def imprimir(navegador, html, pdf, perfil):
+    url = 'file:///' + html.replace('\\', '/')
+    cmd = [navegador, '--headless=new', '--disable-gpu', '--no-first-run',
+           '--user-data-dir=' + perfil,
+           '--print-to-pdf=' + pdf, '--print-to-pdf-no-header', url]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
+    if not os.path.exists(pdf):
         print(r.stdout, r.stderr)
-        return 1
-    print('pdf', os.path.getsize(PDF) // 1024, 'KB ->', os.path.relpath(PDF, ROOT))
+        return False
+    return True
+
+
+def main(argv):
+    idiomas = [x.lower() for x in argv if x.lower() in ('es', 'en')] or ['es', 'en']
+    data = json.load(io.open(os.path.join(ROOT, 'assets', 'data', 'portfolio.json'),
+                             encoding='utf-8'))
+    os.makedirs(OUT_DIR, exist_ok=True)
+    navegador = next((n for n in NAVEGADORES if os.path.exists(n)), None)
+    # Perfil aparte: no se toca el navegador que el usuario tenga abierto.
+    perfil = tempfile.mkdtemp(prefix='dossier-')
+    try:
+        for lang in idiomas:
+            html_txt = construir(data, lang)
+            html = os.path.join(OUT_DIR, 'dossier-%s.html' % lang)
+            pdf = os.path.join(OUT_DIR, ARCHIVO[lang])
+            io.open(html, 'w', encoding='utf-8').write(html_txt)
+            paginas = html_txt.count('<section class="page')
+            if navegador is None:
+                print('%s  %d paginas -> %s (sin navegador, solo HTML)'
+                      % (lang, paginas, os.path.relpath(html, ROOT)))
+                continue
+            if os.path.exists(pdf):
+                os.remove(pdf)
+            if imprimir(navegador, html, pdf, perfil):
+                print('%s  %d paginas  %4d KB  -> %s'
+                      % (lang, paginas, os.path.getsize(pdf) // 1024,
+                         os.path.relpath(pdf, ROOT)))
+            else:
+                print('%s  fallo la impresion' % lang)
+    finally:
+        shutil.rmtree(perfil, ignore_errors=True)
     return 0
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

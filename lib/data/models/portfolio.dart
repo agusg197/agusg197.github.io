@@ -206,6 +206,15 @@ class CvFiles {
       porIdioma[locale.name] ??
       (porIdioma.isEmpty ? null : porIdioma.values.first);
 
+  /// El idioma del archivo que se entrega para [locale], en mayúsculas
+  /// (`EN`), o null si el archivo no lo declara.
+  String? idiomaDe(AppLocale locale) {
+    if (porIdioma.containsKey(locale.name)) return locale.name.toUpperCase();
+    if (porIdioma.isEmpty) return null;
+    final idioma = porIdioma.keys.first;
+    return idioma.isEmpty ? null : idioma.toUpperCase();
+  }
+
   /// El idioma del archivo que se va a bajar, en mayúsculas, solo cuando **no**
   /// coincide con el de la página. Null quiere decir que no hay nada que
   /// aclarar.
@@ -402,6 +411,48 @@ class ProjectDemo {
   final List<String> samples;
 }
 
+/// Un paso del recorrido contado para alguien que no programa.
+class PlainStep {
+  const PlainStep({required this.title, required this.text});
+
+  factory PlainStep.fromJson(Map<String, dynamic> j) => PlainStep(
+        title: L10n.fromJson(j['title']),
+        text: L10n.fromJson(j['text']),
+      );
+
+  final L10n title;
+  final L10n text;
+}
+
+/// El proyecto explicado sin jerga, para el taller de la calle. Los pasos y
+/// las métricas van en el mismo orden que `pipeline` y `metrics`.
+class ProjectPlain {
+  const ProjectPlain({
+    required this.what,
+    required this.problem,
+    required this.analogy,
+    required this.steps,
+    required this.learned,
+    required this.metrics,
+  });
+
+  factory ProjectPlain.fromJson(Map<String, dynamic> j) => ProjectPlain(
+        what: L10n.fromJson(j['what']),
+        problem: L10n.fromJson(j['problem']),
+        analogy: L10n.fromJson(j['analogy']),
+        steps: _maps(j['steps']).map(PlainStep.fromJson).toList(growable: false),
+        learned: L10n.fromJson(j['learned']),
+        metrics: L10n.listFrom(j['metrics']),
+      );
+
+  final L10n what;
+  final L10n problem;
+  final L10n analogy;
+  final List<PlainStep> steps;
+  final L10n learned;
+  final List<L10n> metrics;
+}
+
 class Project {
   const Project({
     required this.id,
@@ -420,6 +471,10 @@ class Project {
     required this.evals,
     required this.gallery,
     required this.demo,
+    this.kind = 'app',
+    this.liveUrl,
+    this.embeddable = false,
+    this.plain,
   });
 
   factory Project.fromJson(Map<String, dynamic> j) {
@@ -451,6 +506,10 @@ class Project {
       gallery:
           _maps(j['gallery']).map(GalleryShot.fromJson).toList(growable: false),
       demo: j['demo'] == null ? null : ProjectDemo.fromJson(_map(j['demo'])),
+      kind: (j['kind'] ?? 'app').toString(),
+      liveUrl: url(j['liveUrl']),
+      embeddable: j['embeddable'] == true,
+      plain: j['plain'] == null ? null : ProjectPlain.fromJson(_map(j['plain'])),
     );
   }
 
@@ -472,6 +531,22 @@ class Project {
   final EvalTable? evals;
   final List<GalleryShot> gallery;
   final ProjectDemo? demo;
+
+  /// `app` (móvil o escritorio, va a los talleres) o `web` (va al arcade).
+  final String kind;
+
+  /// El sitio publicado. Va en el JSON y no en el código porque los dominios
+  /// cambian: el de Bontà Dolce, sin ir más lejos.
+  final String? liveUrl;
+
+  /// Si el sitio se deja mostrar dentro de un iframe. Solo se prende después
+  /// de mirar las cabeceras reales de la respuesta.
+  final bool embeddable;
+
+  /// La explicación simple. Sin ella el taller usa la descripción técnica.
+  final ProjectPlain? plain;
+
+  bool get isWeb => kind == 'web';
 
   bool get hasDetail =>
       pipeline.isNotEmpty ||

@@ -26,11 +26,16 @@ class TerminalPanel extends ConsumerStatefulWidget {
     required this.data,
     required this.profile,
     this.height = 300,
+    this.autofocus = false,
   });
 
   final PortfolioData data;
   final ProfileVariant profile;
   final double height;
+
+  /// Tomar el teclado al aparecer. En la página clásica no: la terminal está
+  /// en medio del scroll. En la calle sí: se abre para escribir.
+  final bool autofocus;
 
   @override
   ConsumerState<TerminalPanel> createState() => _TerminalPanelState();
@@ -54,6 +59,18 @@ class _TerminalPanelState extends ConsumerState<TerminalPanel> {
     'contact',
     'clear',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Después del frame y no con `autofocus`: el panel que la contiene pide
+    // el foco en su propio post-frame, y el último pedido es el que gana.
+    if (widget.autofocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _focus.requestFocus();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -300,6 +317,10 @@ class _TerminalPanelState extends ConsumerState<TerminalPanel> {
                     ),
                     textInputAction: TextInputAction.done,
                     inputFormatters: [LengthLimitingTextInputFormatter(40)],
+                    // Con esto Enter no suelta el foco: en una terminal, después
+                    // de un comando viene otro. Sin foco, además, el panel que
+                    // la contiene se quedaba sin escuchar el Escape.
+                    onEditingComplete: () {},
                     onSubmitted: (v) => _submit(v, s, locale),
                   ),
                 ),

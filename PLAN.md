@@ -9,7 +9,82 @@
 > sin sonido, hosting GitHub Pages o Firebase, paquete `agusg197_cyber`.
 >
 > Correr en local: `flutter run -d web-server --web-port 5173` y abrir http://localhost:5173.
-> Rutas: `/` (home) y `/#/lab` (laboratorio de efectos).
+> Para verificar como en producción: `flutter build web --release` y servir `build/web`.
+> Rutas: `/` (la calle), `/#/p/:id` (la ficha técnica de un proyecto) y `/#/lab`
+> (laboratorio de efectos). `/#/clasica`, la home de v1, redirige a la calle.
+
+---
+
+## 0. v2 — la calle (2026-09-25)
+
+El sitio pasó a ser una cuadra de Night City en pixel art, vista de costado, que se camina
+con rueda, flechas o arrastre. Reemplaza a la home de v1, que se retiró entera (hero,
+secciones y carrusel): la calle ya tiene todo, y mantener dos sitios con el mismo contenido
+era trabajo doble.
+
+**Por qué así.** La v1 ya mostraba proyectos jugables; lo que faltaba era que la página
+entera se explorara igual. Una calle de costado mantiene lo bueno del one-page (se
+recorre en un solo gesto, no hay controles de juego que aprender) y le da a cada sección
+un lugar físico.
+
+**Reglas que se sostienen:**
+- Sin horizonte ni perspectiva: fachadas planas, neón con fallas, hazard stripes, grafiti.
+- La ciudad es pixel art; el trabajo no. Capturas y demos van nítidas.
+- Todo dibujado por código: un buffer RGBA por capa, escala entera y `FilterQuality.none`.
+  Los sprites (el merc) son grillas de texto en el código.
+- El merc (retrato del dueño, 18×34) hace de guía: se para frente a cada edificio y lo
+  explica en un globo con el botón para entrar. Es lo que hace que se entienda dónde está
+  cada cosa.
+- Estático no es pausado: sin animación se dibuja un cuadro compuesto, con todo prendido.
+- Nada de barras de nivel: las skills se prueban con proyectos y trabajos (ripperdoc).
+
+**Los edificios** (en `lib/features/city/`), en orden: casa del merc (ficha y terminal),
+torre (experiencia), talleres (una persiana por app), ripperdoc (skills), arcade (un
+proyecto web por máquina; Bontà Dolce con su demo propia, el resto con una máquina genérica
+que sale del JSON) y teléfono (contacto). Primero quién soy y dónde trabajé, después lo que
+hice, y al final cómo escribirme. La cuadra se calcula desde los datos: más apps o más proyectos web
+agrandan su edificio y corren el resto.
+
+**Rendimiento.** La calle entera son unas 33 llamadas de dibujo por frame: las capas se
+rasterizan una vez, y neones, autos, koi, dron, gente y noticias salen de un solo atlas,
+recorte por recorte con `drawImageRect` y solo lo que está en pantalla. No `drawAtlas`: en
+CanvasKit no deja elegir el muestreo, filtra los píxeles y los carteles se ven borrosos. El globo y los botones escuchan una señal
+aparte que cambia pocas veces, no cada cuadro. Con un panel abierto la calle se pausa. Lo
+mide `test/street_cost_test.dart`, en los tres modos de FX.
+
+**Para quien no programa.** Los globos del merc dicen qué hay y qué hacer, sin nombres de
+tecnologías; cada cartel lleva abajo la instrucción ("> ELEGÍ UN IMPLANTE"), y el botón **?**
+abre un mapa de la cuadra con un botón para ir a cada edificio. El detalle técnico sigue
+estando, adentro de cada panel, para quien lo busque.
+
+**La bienvenida** (`panels/welcome_panel.dart`) sale una sola vez, en la primera visita,
+justo después de elegir idioma: quién soy en una línea, cómo se usa en tres pasos (con texto
+de dedo en el teléfono) y la cuadra en orden para ir directo a algo.
+Queda marcada en `localStorage` (`agusg197.intro`); un enlace con `?ver=` no la muestra,
+porque esa visita ya sabe a qué vino. Después vuelve con el botón **?**.
+
+**Clawd** (`art/clawd.dart`), la mascota de Claude Code, saluda desde la vidriera de la casa,
+al lado del afiche de "disponible": el logo de la terminal llevado a píxeles, con tres poses
+de brazo y un globito de "HOLA!". Va en el atlas para poder moverse; en ESTÁTICO queda en el
+gesto de saludo.
+
+**El teléfono** deja el mensaje con corchetes para completar ("una posición de [puesto] en
+[empresa]"), no pisa lo que escribió la visita al cambiar de motivo o de idioma, y además del
+botón que abre el correo tiene "copiar el mensaje", para quien usa el correo en el navegador
+y no tiene nada que abra un `mailto:`.
+
+**El taller** (`panels/workshop_panel.dart`) ya no manda a la ficha clásica: cada persiana
+abre un panel en la calle con tres partes. *Qué es*: el problema y una comparación ("es
+como dictarle a un secretario prolijo") y cada herramienta explicada en una línea. *Probalo*:
+la línea de armado, con el ejemplo del visitante recorriendo cada estación, lo que hace
+dicho en criollo, lo que sale "como lo ve la máquina" y el detalle técnico detrás de un
+botón. *Qué aprendí*: el hallazgo de las mediciones y cada número con su traducción. Se pasa
+de una app a otra con una persiana que baja y sube, sin salir; la ficha técnica y el código
+quedan al final, para quien programa.
+
+**FX en la calle.** ESTÁTICO: cuadro compuesto, todo prendido y en su lugar. SUTIL: todo se
+mueve a 30 cuadros, mitad de lluvia, sin glitches ni dron. FULL: 60 cuadros, lluvia
+completa, más tráfico, dron y carteles que se rompen en aberración cromática cada tanto.
 
 ---
 

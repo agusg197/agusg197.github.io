@@ -174,7 +174,8 @@ el código, y los tres repos de los proyectos ya están ahí.
 
 ### Falta decidir
 
-- [x] **`og:image`**: `web/og.png`, 1200×630, una captura real del hero. Cuando haya
+- [x] **`og:image`**: `web/og.png`, 1200×630, la calle dibujada por el mismo pintor del sitio
+      (`flutter test tool/render_og.dart` la regenera). Cuando haya
       dominio conviene pasarla a URL absoluta (`https://…/og.png`): LinkedIn y algunos
       scrapers no resuelven rutas relativas contra el `<base href>`.
 - [x] **Favicon e íconos de la app**: generados con `tool/render_icons.py` — marco con
@@ -251,7 +252,9 @@ Source: **GitHub Actions***. Sin esto el workflow corre y falla al publicar.
 
 Después, una vuelta de comprobación: los dos perfiles, los dos idiomas, un teléfono real, y
 abrir un proyecto directo por su URL (`/#/p/echo`) para confirmar que las rutas con `#`
-resuelven bien en Pages.
+resuelven bien en Pages. En la calle: caminarla de punta a punta, abrir un panel por enlace
+(`/#/?ver=bonta`), volver de un proyecto al taller y mirar que `/#/clasica` caiga en la calle.
+En una ventana privada: primero el idioma, después la bienvenida, y al recargar ya no sale.
 
 ---
 
