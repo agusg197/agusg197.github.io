@@ -5,6 +5,10 @@ import 'pixel_canvas.dart';
 /// Gente de la cuadra: tres tipos de persona que cruzan la vereda con su
 /// paraguas.
 ///
+/// Sostienen el paraguas con la mano levantada, adelante de la cara: el palo
+/// sube por [poleX] y la tela va más arriba de la cabeza ([umbrellaLift]),
+/// centrada sobre el palo ([umbrellaShift]).
+///
 /// El cuerpo va con sus colores de verdad y el paraguas aparte: el paraguas
 /// es gris y blanco a propósito, y al dibujarlo con `modulate` se tiñe del
 /// color de cada uno. Así el cuerpo puede tener piel, ropa y luces propias
@@ -12,6 +16,14 @@ import 'pixel_canvas.dart';
 abstract final class NpcSprite {
   static const width = 16;
   static const height = 30;
+
+  /// La columna del palo en el cuerpo, mirando a la derecha.
+  static const poleX = 11;
+
+  /// Cuánto más arriba del cuerpo va la tela, y cuánto se corre para quedar
+  /// centrada sobre el palo (su palo está en la columna 7).
+  static const umbrellaLift = 2;
+  static const umbrellaShift = poleX - 7;
 
   static const _umbrellaPalette = <String, Color>{
     'k': Color(0xFF07070C),
@@ -87,23 +99,23 @@ abstract final class NpcSprite {
   static const _blank = [
     '................',
     '................',
-    '................',
-    '................',
-    '................',
-    '................',
+    '...........h....',
+    '...........h....',
+    '...........h....',
+    '...........h....',
   ];
 
   static const _bodies = [
     [
-      '.......h........',
-      '.......h........',
-      '.....kkhkk......',
-      '....kHHHHHk.....',
-      '....kHSVVVk.....',
-      '....kHSSSSk.....',
-      '.....kSSsk......',
-      '....kCCSCCk.....',
-      '...kCCCSSCCk....',
+      '...........h....',
+      '...........h....',
+      '.....kkkkk.h....',
+      '....kHHHHHkh....',
+      '....kHSVVVkh....',
+      '....kHSSSSkh....',
+      '.....kSSsk.S....',
+      '....kCCCCCkCk...',
+      '...kCCCCCCCCk...',
       '...kCCCCCCCk....',
       '...kCcCCCCCk....',
       '...kCcCCCCCk....',
@@ -113,15 +125,15 @@ abstract final class NpcSprite {
       '...kCCCk.kCCk...',
     ],
     [
-      '.......h........',
-      '.......h........',
-      '.....kkhkk......',
-      '....kQQQQQk.....',
-      '....kQkSSSk.....',
-      '....kQkSeSk.....',
-      '....kQQSSk......',
-      '...kbkQQSQk.....',
-      '..kbbkQQSSQk....',
+      '...........h....',
+      '...........h....',
+      '.....kkkkk.h....',
+      '....kQQQQQkh....',
+      '....kQkSSSkh....',
+      '....kQkSeSkh....',
+      '....kQQSSk.S....',
+      '...kbkQQQQkQk...',
+      '..kbbkQQQQQQk...',
       '..kbbkQMQMQk....',
       '..kbbkQMQMQk....',
       '..kbbkQQQQQk....',
@@ -131,15 +143,15 @@ abstract final class NpcSprite {
       '.....kLLLLLk....',
     ],
     [
-      '.......h........',
-      '.......h........',
-      '.....kkhkk......',
-      '....kHHHHHk.....',
-      '...kHHSSSHk.....',
-      '...kHSSeSSk.....',
-      '...kHkSSsk......',
-      '...kFFFSFFk.....',
-      '..kJJJJSSJJk....',
+      '...........h....',
+      '...........h....',
+      '.....kkkkk.h....',
+      '....kHHHHHkh....',
+      '...kHHSSSHkh....',
+      '...kHSSeSSkh....',
+      '...kHkSSsk.S....',
+      '...kFFFFFFkJk...',
+      '..kJJJJJJJJJk...',
       '..kJJJJJJJJk....',
       '..kJjJJJJJTk....',
       '..kJjJJJPJTTk...',

@@ -785,7 +785,12 @@ class StreetPainter extends CustomPainter {
       final px = x.roundToDouble();
       const py = World.ground - 27.0;
       b.add(body, px, py, const Color(0xFFFFFFFF));
-      b.add(right ? sp.umbrella.$1 : sp.umbrella.$2, px, py, _umbrellas[i % _umbrellas.length]);
+      b.add(
+        right ? sp.umbrella.$1 : sp.umbrella.$2,
+        px + (right ? NpcSprite.umbrellaShift : -NpcSprite.umbrellaShift),
+        py - NpcSprite.umbrellaLift,
+        _umbrellas[i % _umbrellas.length],
+      );
     }
   }
 
