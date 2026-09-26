@@ -20,6 +20,7 @@ class StreetSprites {
     required this.ticker,
     required this.npc,
     required this.npcFlip,
+    required this.umbrella,
     required this.clawd,
     required this.clawdBubble,
     required this.rick,
@@ -50,9 +51,11 @@ class StreetSprites {
   /// ventana que se corre nunca se quede sin letras.
   final Rect ticker;
 
-  /// La gente de la vereda: quieto, paso largo, paso corto; y espejados.
-  final List<Rect> npc;
-  final List<Rect> npcFlip;
+  /// La gente de la vereda: `npc[tipo][cuadro]` (quieto, paso largo, paso
+  /// corto) y espejados. El paraguas va aparte porque se tiñe.
+  final List<List<Rect>> npc;
+  final List<List<Rect>> npcFlip;
+  final (Rect, Rect) umbrella;
 
   /// Clawd en el techo, un cuadro por [ClawdPose], y su globito.
   final List<Rect> clawd;

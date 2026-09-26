@@ -340,8 +340,8 @@ Future<StreetLayers> buildStreet(StreetLayout l, StreetText t) async {
     _flip(_koiSprite(0)),
     _flip(_koiSprite(1)),
     strip,
-    for (final f in NpcSprite.frames) PixelCanvas(f.width, f.height)..stamp(f, 0, 0),
-    for (final f in NpcSprite.frames) PixelCanvas(f.width, f.height)..stamp(f, 0, 0, flip: true),
+    for (final f in NpcSprite.types[0]) PixelCanvas(f.width, f.height)..stamp(f, 0, 0),
+    for (final f in NpcSprite.types[0]) PixelCanvas(f.width, f.height)..stamp(f, 0, 0, flip: true),
     for (final pose in ClawdPose.values) _clawdSprite(pose),
     _clawdBubble(t.greet),
     for (final f in [RickSprite.up, RickSprite.down, LobsterSprite.open, LobsterSprite.snap])
@@ -354,6 +354,13 @@ Future<StreetLayers> buildStreet(StreetLayout l, StreetText t) async {
     for (final m in [CarModel.taxi, CarModel.police]) ...[_carSprite(m), _flip(_carSprite(m))],
     _carFarSprite(true),
     _flip(_carFarSprite(true)),
+    // Los otros dos tipos de persona, y el paraguas que se tiñe aparte.
+    for (final type in NpcSprite.types.skip(1)) ...[
+      for (final f in type) PixelCanvas(f.width, f.height)..stamp(f, 0, 0),
+      for (final f in type) PixelCanvas(f.width, f.height)..stamp(f, 0, 0, flip: true),
+    ],
+    PixelCanvas(NpcSprite.width, NpcSprite.umbrella.height)..stamp(NpcSprite.umbrella, 0, 0),
+    PixelCanvas(NpcSprite.width, NpcSprite.umbrella.height)..stamp(NpcSprite.umbrella, 0, 0, flip: true),
   ];
 
   final (atlas, rects) = _pack([for (final n in neon) n.canvas, ...sprites]);
@@ -385,8 +392,9 @@ Future<StreetLayers> buildStreet(StreetLayout l, StreetText t) async {
       koi: [sr[6], sr[7]],
       koiFlip: [sr[8], sr[9]],
       ticker: sr[10],
-      npc: sr.sublist(11, 14),
-      npcFlip: sr.sublist(14, 17),
+      npc: [sr.sublist(11, 14), sr.sublist(34, 37), sr.sublist(40, 43)],
+      npcFlip: [sr.sublist(14, 17), sr.sublist(37, 40), sr.sublist(43, 46)],
+      umbrella: (sr[46], sr[47]),
       clawd: sr.sublist(17, 20),
       clawdBubble: sr[20],
       rick: sr.sublist(21, 23),

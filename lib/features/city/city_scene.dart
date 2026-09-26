@@ -779,8 +779,13 @@ class StreetPainter extends CustomPainter {
       if (x < cam - NpcSprite.width || x > cam + viewW) continue;
       // Pasos: largo, corto, largo, corto; quietos, parados.
       final frame = animate ? const [1, 2, 1, 2][((t * speed / 7) + i).floor() % 4] : 0;
-      final src = (right ? sp.npc : sp.npcFlip)[frame];
-      b.add(src, x.roundToDouble(), World.ground - 26.0, _umbrellas[i % _umbrellas.length]);
+      // El cuerpo con sus colores y el paraguas encima, teñido de cada uno.
+      final type = i % sp.npc.length;
+      final body = (right ? sp.npc : sp.npcFlip)[type][frame];
+      final px = x.roundToDouble();
+      const py = World.ground - 27.0;
+      b.add(body, px, py, const Color(0xFFFFFFFF));
+      b.add(right ? sp.umbrella.$1 : sp.umbrella.$2, px, py, _umbrellas[i % _umbrellas.length]);
     }
   }
 

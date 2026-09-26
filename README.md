@@ -77,7 +77,7 @@ operaciones en vez de mirar el frame rate:
 | Campo de partículas | 614 llamadas de dibujo | **11** |
 | Textura CRT | 625 | **9** |
 | Grilla del hero | 82 llamadas + 5 `saveLayer` | 82 + **0** |
-| La calle: 83 neones, tráfico, koi, dron, ascensor, gente, noticias y easter eggs | 53 | **45** |
+| La calle: 83 neones, tráfico, koi, dron, ascensor, gente, noticias y easter eggs | 53 | **47** |
 
 Las técnicas: agrupar puntos y líneas en `drawRawPoints` por opacidad, cachear shaders y
 buffers en vez de crearlos en cada `paint`, resolver las líneas de barrido con un gradiente

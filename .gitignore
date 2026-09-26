@@ -50,4 +50,9 @@ app.*.map.json
 # Material de trabajo que no va al sitio
 /CVs/
 /design/
-/entrega/dossier.html
+
+# Lo que se entrega aparte (dossier, fichas por proyecto) y los scripts que lo
+# arman: se generan en local y no son parte del sitio.
+/entrega/
+/tool/build_presentacion.py
+/tool/build_project_briefs.py
