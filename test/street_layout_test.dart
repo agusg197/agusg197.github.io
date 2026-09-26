@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:agusg197_cyber/features/city/street_art.dart';
 import 'package:agusg197_cyber/features/city/street_layout.dart';
 
 void main() {
@@ -36,5 +37,23 @@ void main() {
       expect(b.right, lessThanOrEqualTo(shop.right));
     }
     expect(l.lot(LotKind.clinic).x, greaterThan(StreetLayout(bays: 7).lot(LotKind.clinic).x));
+  });
+
+  test('el ascensor recorre todos los pisos, para en cada uno y no se sale', () {
+    const e = Elevator(x: 0, anchor: 22, stops: [152, 128, 104]);
+    final seen = <double>{};
+    var still = 0;
+    for (var t = 0.0; t < 60; t += 0.05) {
+      final y = e.at(t);
+      expect(y, inInclusiveRange(104, 152));
+      if (e.stops.contains(y)) {
+        seen.add(y);
+        still++;
+      }
+    }
+    expect(seen, e.stops.toSet());
+    // Pasa buena parte del tiempo parado en un piso, no yendo y viniendo.
+    expect(still / 1200, greaterThan(0.4));
+    expect(e.rest, 104);
   });
 }

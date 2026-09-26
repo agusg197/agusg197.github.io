@@ -8,6 +8,8 @@ part of '../street_art.dart';
 class StreetSprites {
   const StreetSprites({
     required this.car,
+    required this.carsMore,
+    required this.truckFar,
     required this.carFlip,
     required this.carFar,
     required this.carFarFlip,
@@ -23,12 +25,19 @@ class StreetSprites {
     required this.rick,
     required this.lobster,
     required this.dot,
+    required this.cabin,
+    required this.cable,
   });
 
   final Rect car;
   final Rect carFlip;
   final Rect carFar;
   final Rect carFarFlip;
+
+  /// Los otros modelos: taxi y patrullero cerca, el camión lejos. Cada uno
+  /// mirando a la derecha y espejado.
+  final List<(Rect, Rect)> carsMore;
+  final (Rect, Rect) truckFar;
   final Rect drone;
   final Rect droneLed;
 
@@ -55,6 +64,10 @@ class StreetSprites {
   final List<Rect> rick;
   final List<Rect> lobster;
   final Rect dot;
+
+  /// La cabina del ascensor de la torre y un tramo de cable.
+  final Rect cabin;
+  final Rect cable;
 }
 
 /// Dónde está el cartel de noticias y cuánto mide una vuelta de texto.
@@ -84,33 +97,80 @@ PixelCanvas _flip(PixelCanvas src) {
 
 /// Un spinner visto de costado: casco oscuro, ventanilla, faro, luz de freno
 /// y la luz de abajo en cian. Mira a la derecha.
-PixelCanvas _carSprite() {
-  final c = PixelCanvas(18, 7);
-  const body = Color(0xFF22253A);
-  const hi = Color(0xFF3A3F5E);
-  c.rect(5, 0, 7, 1, _ink);
-  c.rect(3, 1, 11, 1, _ink);
-  c.rect(4, 1, 8, 1, const Color(0xFF14505A));
-  c.rect(1, 2, 16, 2, body);
-  c.hline(2, 2, 13, hi);
-  c.rect(0, 3, 18, 1, body);
-  c.rect(1, 4, 16, 1, _ink);
-  c.set(17, 3, _yellow);
-  c.set(16, 2, _darken(_yellow, 0.6));
-  c.set(0, 3, _magenta);
-  c.hline(3, 5, 12, _cyan);
-  c.dither(3, 6, 12, 1, _darken(_cyan, 0.5));
+/// Los modelos de nave que cruzan cerca: un sedán, un taxi y un patrullero.
+enum CarModel { sedan, taxi, police }
+
+/// Una nave cercana, mirando a la derecha. Carrocería con luz arriba, cabina
+/// con el conductor recortado, faro adelante, luz de cola atrás y el
+/// propulsor cian abajo.
+PixelCanvas _carSprite([CarModel model = CarModel.sedan]) {
+  final c = PixelCanvas(24, 9);
+  final (body, hi, trim) = switch (model) {
+    CarModel.sedan => (const Color(0xFF22253A), const Color(0xFF3A3F5E), _magenta),
+    CarModel.taxi => (const Color(0xFF8A7A10), const Color(0xFFCDBB2A), _void),
+    CarModel.police => (const Color(0xFF14172A), const Color(0xFF2E3450), _cyan),
+  };
+  // Techo y cabina.
+  c.rect(8, 1, 9, 1, _ink);
+  c.rect(6, 2, 13, 2, _ink);
+  c.rect(8, 2, 9, 2, const Color(0xFF14505A));
+  c.hline(9, 2, 3, const Color(0xFF2A7C88)); // reflejo del vidrio
+  c.rect(13, 2, 2, 2, _void); // el conductor
+  c.set(13, 1, _void);
+  // Carrocería.
+  c.rect(2, 4, 21, 2, body);
+  c.hline(3, 4, 19, hi);
+  c.rect(0, 5, 24, 1, body);
+  c.rect(1, 6, 22, 1, _ink);
+  c.hline(4, 5, 15, _darken(trim, 0.7)); // filete
+  // Faro, luz de cola y propulsor.
+  c.set(23, 5, _yellow);
+  c.set(22, 4, _darken(_yellow, 0.6));
+  c.set(0, 5, const Color(0xFFFF3B3B));
+  c.hline(4, 7, 16, _cyan);
+  c.dither(4, 8, 16, 1, _darken(_cyan, 0.5));
+  switch (model) {
+    case CarModel.sedan:
+      break;
+    case CarModel.taxi:
+      // Damero en el costado y el cartel de TAXI en el techo.
+      for (var k = 4; k < 20; k += 2) {
+        c.set(k, 5, (k ~/ 2).isEven ? _void : const Color(0xFFCDBB2A));
+      }
+      c.rect(10, 0, 5, 1, const Color(0xFFFFE070));
+    case CarModel.police:
+      // Balizas roja y azul en el techo.
+      c.rect(9, 0, 3, 1, const Color(0xFFFF3B3B));
+      c.rect(13, 0, 3, 1, const Color(0xFF3B6BFF));
+      c.hline(5, 5, 14, _cyan);
+  }
   return c;
 }
 
-/// El mismo, lejos: tres píxeles de alto y casi solo luces.
-PixelCanvas _carFarSprite() {
-  final c = PixelCanvas(9, 3);
-  c.rect(1, 0, 6, 1, _ink);
-  c.rect(0, 1, 9, 1, const Color(0xFF1B1D30));
-  c.set(8, 1, _yellow);
-  c.set(0, 1, _magenta);
-  c.hline(2, 2, 5, _darken(_cyan, 0.7));
+/// Lejos: cuatro píxeles de alto y casi solo luces. El segundo modelo es un
+/// camión de carga, más largo.
+PixelCanvas _carFarSprite([bool truck = false]) {
+  if (!truck) {
+    final c = PixelCanvas(11, 4);
+    c.rect(3, 0, 5, 1, _ink);
+    c.rect(1, 1, 9, 1, const Color(0xFF1B1D30));
+    c.rect(0, 2, 11, 1, const Color(0xFF1B1D30));
+    c.set(10, 2, _yellow);
+    c.set(0, 2, _magenta);
+    c.hline(2, 3, 7, _darken(_cyan, 0.7));
+    return c;
+  }
+  final c = PixelCanvas(17, 5);
+  c.rect(12, 0, 4, 2, _ink); // cabina
+  c.set(14, 1, _darken(_cyan, 0.6));
+  c.rect(0, 1, 12, 3, const Color(0xFF232438)); // el contenedor
+  for (var k = 1; k < 12; k += 3) {
+    c.vline(k, 1, 3, const Color(0xFF191A2A));
+  }
+  c.rect(12, 2, 5, 2, const Color(0xFF1B1D30));
+  c.set(16, 2, _yellow);
+  c.set(0, 2, const Color(0xFFFF3B3B));
+  c.hline(2, 4, 13, _darken(_cyan, 0.6));
   return c;
 }
 

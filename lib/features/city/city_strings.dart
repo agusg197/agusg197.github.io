@@ -192,8 +192,8 @@ extension CityStrings on S {
             'Touch anything that glows: signs, cabinets, shutters, the booth.'),
         t('Cuando me paro frente a un edificio, te cuento qué hay adentro.',
             'When I stop in front of a building, I tell you what is inside.'),
-        t('Para salir de cualquier panel: ESC o tocar afuera.',
-            'To leave any panel: ESC or tap outside.'),
+        t('Para salir de cualquier panel: ESC o tocar afuera. Si el globo del merc tapa algo, cerralo con la ×.',
+            "To leave any panel: ESC or tap outside. If the merc's bubble is in the way, close it with the ×."),
       ];
   String get helpMap => t('LA CUADRA', 'THE BLOCK');
   String helpLot(LotKind k) => switch (k) {

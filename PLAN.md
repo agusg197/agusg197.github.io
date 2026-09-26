@@ -45,7 +45,7 @@ que sale del JSON) y teléfono (contacto). Primero quién soy y dónde trabajé,
 hice, y al final cómo escribirme. La cuadra se calcula desde los datos: más apps o más proyectos web
 agrandan su edificio y corren el resto.
 
-**Rendimiento.** La calle entera son unas 33 llamadas de dibujo por frame: las capas se
+**Rendimiento.** La calle entera son unas 45 llamadas de dibujo por frame: las capas se
 rasterizan una vez, y neones, autos, koi, dron, gente y noticias salen de un solo atlas,
 recorte por recorte con `drawImageRect` y solo lo que está en pantalla. No `drawAtlas`: en
 CanvasKit no deja elegir el muestreo, filtra los píxeles y los carteles se ven borrosos. El globo y los botones escuchan una señal

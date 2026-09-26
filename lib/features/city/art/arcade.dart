@@ -1,6 +1,15 @@
 part of '../street_art.dart';
 
-// El arcade: una máquina por proyecto web.
+// El arcade: un salón de juegos con una máquina por proyecto web.
+
+/// Los dibujitos de los pósters del fondo: un invasor, un fantasma, un cohete
+/// y un corazón, de 7×6.
+const _posterArt = [
+  ['..#.#..', '.#####.', '##.#.##', '#######', '#.#.#.#', '.#...#.'],
+  ['..###..', '.#####.', '##.#.##', '#######', '#######', '#.#.#.#'],
+  ['...#...', '..###..', '..#.#..', '..###..', '.#####.', '#..#..#'],
+  ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...'],
+];
 
 int _arcade(PixelCanvas c, List<_Neon> neon, StreetLayout l, StreetText t) {
   final lot = l.lot(LotKind.arcade);
@@ -8,13 +17,10 @@ int _arcade(PixelCanvas c, List<_Neon> neon, StreetLayout l, StreetText t) {
   final x = lot.x;
   final w = lot.width;
   const top = 64;
+  const chrome = Color(0xFF5A6488);
 
+  // --- Fachada de ladrillo con cornisa ---
   c.rect(x, top, w, World.ground - top, _wallB);
-  c.hline(x, top, w, _steelHi);
-  c.hline(x, top + 1, w, _steel);
-  c.vline(x, top, World.ground - top, _seam);
-  c.vline(x + w - 1, top, World.ground - top, _seam);
-  // Ladrillo: trama corrida cada dos hileras.
   for (var y = top + 4; y < World.ground - 90; y += 4) {
     c.hline(x + 1, y, w - 2, const Color(0xFF191623));
     final off = (y ~/ 4).isEven ? 0 : 6;
@@ -22,6 +28,19 @@ int _arcade(PixelCanvas c, List<_Neon> neon, StreetLayout l, StreetText t) {
       c.vline(bx, y - 3, 3, const Color(0xFF191623));
     }
   }
+  // Algún ladrillo más claro o más oscuro: la pared tiene años.
+  for (var k = 0; k < 26; k++) {
+    final bx = x + 2 + rng.nextInt(w - 14);
+    final by = top + 5 + rng.nextInt(40) ~/ 4 * 4;
+    c.rect(bx, by, 10, 3, rng.nextBool() ? const Color(0xFF231E2E) : const Color(0xFF15121D));
+  }
+  c.rect(x - 2, top - 3, w + 4, 3, _steel);
+  c.hline(x - 2, top - 3, w + 4, _steelHi);
+  for (var k = x + 4; k < x + w - 2; k += 12) {
+    c.set(k, top - 2, _dim); // bulones de la cornisa
+  }
+  c.vline(x, top, World.ground - top, _seam);
+  c.vline(x + w - 1, top, World.ground - top, _seam);
 
   // Cartel principal.
   _hang(c, neon, _titleSign(
@@ -37,31 +56,75 @@ int _arcade(PixelCanvas c, List<_Neon> neon, StreetLayout l, StreetText t) {
   ));
 
   // En el techo, el proyector del koi; a la derecha de la vidriera, una
-  // expendedora.
+  // expendedora; en el pilar de la izquierda, el cartel de PLAY.
   _projector(c, neon, x + w - 28, top);
   _vending(c, neon, x + StreetLayout.arcadeWindowX + l.arcadeWindowWidth + 3);
+  neon.add(_verticalSign('PLAY', x + 4, World.ground - 76, _yellow, NeonMode.flicker));
 
-  // Toldo con franjas.
+  // Marquesina con franjas y luces de feria que corren: dos tiras
+  // intercaladas que parpadean cada una a su ritmo.
   const awning = World.ground - 90;
   c.hazard(x + 8, awning, w - 16, 6, _magenta, _void, band: 4);
   c.hline(x + 8, awning + 6, w - 16, _steelHi);
-  for (var i = x + 8; i < x + w - 8; i += 8) {
-    c.set(i + 3, awning + 7, _darken(_magenta, 0.5));
+  final bulbsA = PixelCanvas(w - 16, 1);
+  final bulbsB = PixelCanvas(w - 16, 1);
+  for (var k = 1; k < w - 17; k += 4) {
+    ((k ~/ 4).isEven ? bulbsA : bulbsB).set(k, 0, const Color(0xFFFFE9A8));
   }
+  neon.add(_Neon(bulbsA, x + 8, awning + 7, NeonMode.blink));
+  neon.add(_Neon(bulbsB, x + 8, awning + 7, NeonMode.flicker));
 
-  // Vidriera: adentro se ven las máquinas.
+  // --- Vidriera: adentro, el salón ---
   final vx = x + StreetLayout.arcadeWindowX;
   const vy = StreetLayout.arcadeWindowTop;
   final vw = l.arcadeWindowWidth;
   const vh = World.ground - StreetLayout.arcadeWindowTop;
   c.rect(vx - 3, vy - 3, vw + 6, vh + 3, _steelHi);
+  c.hline(vx - 3, vy - 3, vw + 6, chrome);
   c.rect(vx, vy, vw, vh, _void);
-  // Fondo del local: pared con afiches y piso a cuadros.
+  // Pared del fondo, con zócalo.
   c.rect(vx, vy, vw, vh - 12, const Color(0xFF0C0D18));
+  c.hline(vx, World.ground - 13, vw, const Color(0xFF1B1D30));
+
+  // El tablero de récords, arriba al centro, entre los pósters.
+  const hi = 'HI 99999';
+  final hw = PixelFont.small.measure(hi);
+  final boardX = vx + (vw - hw - 6) ~/ 2;
+  final board = PixelCanvas(hw + 6, 9);
+  board.rect(0, 0, hw + 6, 9, _ink);
+  board.frame(0, 0, hw + 6, 9, _darken(_cyan, 0.4));
+  board.text(hi, 3, 2, _cyan, font: PixelFont.small);
+  neon.add(_Neon(board, boardX, vy + 11, NeonMode.blink));
+
+  // Pósters de juegos, enmarcados, con su dibujito. El del medio no va: ahí
+  // está el tablero.
+  final posters = [_cyan, _violet, _yellow, _magenta];
+  var pi = 0;
   for (var px = vx + 6; px < vx + vw - 16; px += 34) {
-    c.rect(px, vy + 6, 14, 18, _darken([_cyan, _violet, _yellow][rng.nextInt(3)], 0.28));
-    c.frame(px, vy + 6, 14, 18, _ink);
+    if (px + 14 > boardX - 2 && px < boardX + hw + 8) continue;
+    final color = posters[pi % posters.length];
+    c.rect(px, vy + 6, 14, 18, _darken(color, 0.2));
+    c.frame(px, vy + 6, 14, 18, _darken(color, 0.45));
+    final art = _posterArt[pi % _posterArt.length];
+    for (var ry = 0; ry < art.length; ry++) {
+      for (var rx = 0; rx < art[ry].length; rx++) {
+        if (art[ry][rx] == '#') c.set(px + 3 + rx, vy + 9 + ry, _darken(color, 0.75));
+      }
+    }
+    c.hline(px + 3, vy + 18, 8, _darken(color, 0.55)); // el título
+    c.hline(px + 4, vy + 20, 6, _darken(color, 0.4));
+    pi++;
   }
+
+  // Lámparas colgantes del techo del local.
+  for (var lx = vx + 22; lx < vx + vw - 10; lx += 34) {
+    c.vline(lx + 2, vy, 3, _dim);
+    c.rect(lx, vy + 3, 6, 2, _steel);
+    final glow = PixelCanvas(4, 1)..hline(0, 0, 4, _darken(_magenta, 0.9));
+    neon.add(_Neon(glow, lx + 1, vy + 5, NeonMode.steady));
+  }
+
+  // Alfombra de salón de juegos: damero oscuro con estrellitas de colores.
   for (var fy = World.ground - 12; fy < World.ground; fy += 3) {
     for (var fx = vx; fx < vx + vw; fx += 3) {
       if (((fx - vx) ~/ 3 + (fy ~/ 3)).isEven) {
@@ -69,10 +132,20 @@ int _arcade(PixelCanvas c, List<_Neon> neon, StreetLayout l, StreetText t) {
       }
     }
   }
+  for (var k = 0; k < vw ~/ 6; k++) {
+    c.set(vx + rng.nextInt(vw), World.ground - 1 - rng.nextInt(11),
+        [_cyan, _magenta, _yellow][rng.nextInt(3)].withValues(alpha: 0.5));
+  }
 
   for (var i = 0; i < l.cabinets; i++) {
     _cabinet(c, neon, l.cabinet(i), i < t.cabinets.length ? t.cabinets[i] : null, t.soon);
   }
+
+  // A los costados de las máquinas: la grúa de peluches y la de fichas.
+  final firstCab = l.cabinet(0).left.toInt();
+  final lastCab = l.cabinet(l.cabinets - 1).right.toInt();
+  _claw(c, neon, firstCab - 30);
+  _tokens(c, neon, lastCab + 10);
 
   // Reflejo del vidrio por encima de todo lo de adentro.
   for (var i = 0; i < vw; i += 23) {
@@ -81,6 +154,61 @@ int _arcade(PixelCanvas c, List<_Neon> neon, StreetLayout l, StreetText t) {
     }
   }
   return top;
+}
+
+/// La grúa de peluches: una caja de vidrio con premios de colores, la garra
+/// colgando y el techo iluminado.
+void _claw(PixelCanvas c, List<_Neon> neon, int x) {
+  const g = World.ground;
+  const w = 22;
+  const h = 46;
+  final y = g - h;
+  c.rect(x, y + 8, w, h - 8, const Color(0xFF1B1D30));
+  c.frame(x, y + 8, w, h - 8, _steelHi);
+  // El vidrio, con los premios amontonados abajo.
+  c.rect(x + 2, y + 10, w - 4, 22, const Color(0xFF0E1A26));
+  final rng = Random(5);
+  for (var k = 0; k < 14; k++) {
+    final px = x + 3 + rng.nextInt(w - 8);
+    final py = y + 26 + rng.nextInt(5);
+    c.rect(px, py, 3, 2, [_magenta, _yellow, _cyan, _violet][k % 4]);
+  }
+  // La garra, de un riel arriba.
+  c.hline(x + 2, y + 11, w - 4, _steel);
+  c.vline(x + 11, y + 12, 7, _dim);
+  c.rect(x + 9, y + 19, 5, 1, _steelHi);
+  c.set(x + 9, y + 20, _steelHi);
+  c.set(x + 13, y + 20, _steelHi);
+  // Mandos y la ranura de las fichas.
+  c.rect(x + 1, y + 33, w - 2, 4, _steel);
+  c.rect(x + 5, y + 31, 1, 3, _dim);
+  c.rect(x + 4, y + 30, 3, 2, _magenta);
+  c.rect(x + 14, y + 34, 3, 2, _yellow);
+  c.rect(x + 8, y + 40, 6, 3, _ink);
+  // El techo que brilla.
+  final lid = PixelCanvas(w, 8);
+  lid.rect(0, 0, w, 8, _darken(_violet, 0.35));
+  lid.frame(0, 0, w, 8, _violet);
+  lid.text('WIN', (w - PixelFont.small.measure('WIN')) ~/ 2, 2, const Color(0xFFFFD9A0), font: PixelFont.small);
+  neon.add(_Neon(lid, x, y, NeonMode.flicker));
+}
+
+/// La máquina de cambio de fichas, con la pantalla y la bandeja.
+void _tokens(PixelCanvas c, List<_Neon> neon, int x) {
+  const g = World.ground;
+  c.rect(x, g - 34, 14, 34, const Color(0xFF232438));
+  c.frame(x, g - 34, 14, 34, _steelHi);
+  c.rect(x + 3, g - 14, 8, 4, _ink); // la bandeja
+  c.hline(x + 3, g - 11, 8, _darken(_yellow, 0.6)); // fichas
+  c.rect(x + 5, g - 22, 4, 2, _ink); // ranura del billete
+  final screen = PixelCanvas(10, 8);
+  screen.rect(0, 0, 10, 8, _darken(_yellow, 0.25));
+  screen.frame(0, 0, 10, 8, _darken(_yellow, 0.55));
+  // Una ficha: la fuente de píxeles no tiene signo de pesos.
+  screen.rect(3, 2, 4, 4, _yellow);
+  screen.rect(4, 1, 2, 6, _yellow);
+  screen.rect(4, 3, 2, 2, _darken(_yellow, 0.5));
+  neon.add(_Neon(screen, x + 2, g - 32, NeonMode.steady));
 }
 
 void _cabinet(PixelCanvas c, List<_Neon> neon, Rect r, CabinetSign? sign, String soon) {

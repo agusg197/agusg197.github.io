@@ -160,6 +160,57 @@ class NeonPiece {
   final bool glitch;
 }
 
+/// El ascensor de la torre: dónde cuelgan los cables y en qué alturas para
+/// la cabina (una por piso de trabajo, de abajo hacia arriba).
+///
+/// Va y vuelve: sube piso por piso hasta arriba y baja igual, frenando suave
+/// y esperando un rato en cada uno. Quieto, queda en [rest], el piso del
+/// trabajo actual.
+class Elevator {
+  const Elevator({required this.x, required this.anchor, required this.stops});
+
+  final double x;
+  final double anchor;
+  final List<double> stops;
+
+  double get rest => stops.last;
+
+  static const _speed = 16.0; // píxeles del mundo por segundo
+  static const _dwell = 2.4; // segundos en cada piso
+
+  /// La altura de la cabina a los [t] segundos.
+  double at(double t) {
+    if (stops.length < 2) return stops.isEmpty ? 0 : stops.first;
+    // Ida y vuelta: 0, 1, …, n-1, …, 1, y otra vez.
+    final order = [
+      for (var i = 0; i < stops.length; i++) i,
+      for (var i = stops.length - 2; i > 0; i--) i,
+    ];
+    var cycle = 0.0;
+    for (var k = 0; k < order.length; k++) {
+      final a = stops[order[k]];
+      final b = stops[order[(k + 1) % order.length]];
+      cycle += _dwell + (b - a).abs() / _speed;
+    }
+    var p = t % cycle;
+    for (var k = 0; k < order.length; k++) {
+      final a = stops[order[k]];
+      final b = stops[order[(k + 1) % order.length]];
+      if (p < _dwell) return a;
+      p -= _dwell;
+      final travel = (b - a).abs() / _speed;
+      if (p < travel) {
+        // Arranca y frena despacio.
+        final u = p / travel;
+        final ease = u * u * (3 - 2 * u);
+        return a + (b - a) * ease;
+      }
+      p -= travel;
+    }
+    return stops.first;
+  }
+}
+
 class StreetLayers {
   StreetLayers({
     required this.far,
@@ -173,6 +224,7 @@ class StreetLayers {
     required this.droneLane,
     required this.steam,
     required this.clawdAt,
+    required this.elevator,
   });
 
   /// Fondo lejano y medio: se repiten en tiras de este ancho.
@@ -205,6 +257,9 @@ class StreetLayers {
 
   /// Dónde está parado Clawd, en el techo de la casa.
   final Offset clawdAt;
+
+  /// El ascensor de la torre, que se mueve.
+  final Elevator elevator;
 
   void dispose() {
     far.dispose();
@@ -293,6 +348,12 @@ Future<StreetLayers> buildStreet(StreetLayout l, StreetText t) async {
       PixelCanvas(f.width, f.height)..stamp(f, 0, 0),
     // Un píxel blanco: brasa y humo, teñidos al dibujarlos.
     PixelCanvas(1, 1)..set(0, 0, const Color(0xFFFFFFFF)),
+    _cabinSprite(),
+    // El cable del ascensor: una columna larga que se recorta al largo justo.
+    PixelCanvas(1, 200)..vline(0, 0, 200, _dim),
+    for (final m in [CarModel.taxi, CarModel.police]) ...[_carSprite(m), _flip(_carSprite(m))],
+    _carFarSprite(true),
+    _flip(_carFarSprite(true)),
   ];
 
   final (atlas, rects) = _pack([for (final n in neon) n.canvas, ...sprites]);
@@ -331,12 +392,17 @@ Future<StreetLayers> buildStreet(StreetLayout l, StreetText t) async {
       rick: sr.sublist(21, 23),
       lobster: sr.sublist(23, 25),
       dot: sr[25],
+      cabin: sr[26],
+      cable: sr[27],
+      carsMore: [(sr[28], sr[29]), (sr[30], sr[31])],
+      truckFar: (sr[32], sr[33]),
     ),
     ticker: TickerBoard(x: ticker.x, y: ticker.y, width: ticker.width, loop: loop),
     koiArea: Rect.fromLTWH(arcade.x + 14.0, 28, arcade.width - 28.0, 30),
     droneLane: Rect.fromLTWH(shop.x + 12.0, 60, shop.width - 24.0, 8),
     steam: steam,
     clawdAt: _clawdSpot(l),
+    elevator: _elevatorOf(l, t),
   );
 }
 

@@ -177,6 +177,7 @@ class _CityViewState extends ConsumerState<CityView>
           _ => null,
         };
     _sim.addListener(_trackMoved);
+    _sim.hud.addListener(_onHud);
     HardwareKeyboard.instance.addHandler(_onEscape);
     _kick();
   }
@@ -195,6 +196,7 @@ class _CityViewState extends ConsumerState<CityView>
   @override
   void dispose() {
     _sim.removeListener(_trackMoved);
+    _sim.hud.removeListener(_onHud);
     HardwareKeyboard.instance.removeHandler(_onEscape);
     _ticker.dispose();
     _sim.dispose();
@@ -353,6 +355,21 @@ class _CityViewState extends ConsumerState<CityView>
 
   static const _rickRoll = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
+  /// El edificio cuyo globo cerró la visita: no vuelve a salir ahí hasta que
+  /// el merc se vaya a otro. Tapar lo que alguien quiere mirar no ayuda.
+  LotKind? _hushed;
+
+  void _hush() {
+    final kind = _sim.mercLot?.kind;
+    if (kind != null) setState(() => _hushed = kind);
+  }
+
+  void _onHud() {
+    if (_hushed != null && _sim.mercLot?.kind != _hushed) {
+      setState(() => _hushed = null);
+    }
+  }
+
   /// Los toques seguidos al fumador: cinco segundos quieto y se empieza de
   /// nuevo.
   int _rickPokes = 0;
@@ -409,6 +426,10 @@ class _CityViewState extends ConsumerState<CityView>
     if (_overlay != null) return KeyEventResult.ignored;
     if (e is KeyUpEvent) return KeyEventResult.ignored;
     final k = e.logicalKey;
+    if (e is KeyDownEvent && k == LogicalKeyboardKey.escape) {
+      _hush();
+      return KeyEventResult.handled;
+    }
     if (k == LogicalKeyboardKey.arrowRight || k == LogicalKeyboardKey.keyD) {
       _sim.nudge(26);
     } else if (k == LogicalKeyboardKey.arrowLeft || k == LogicalKeyboardKey.keyA) {
@@ -530,6 +551,8 @@ class _CityViewState extends ConsumerState<CityView>
                   streetHeight: streetH,
                   width: box.maxWidth,
                   hidden: _overlay != null,
+                  hushed: _hushed,
+                  onClose: _hush,
                   s: s,
                   firstApp: _apps.firstOrNull?.name,
                   firstWeb: _web.firstOrNull?.name,
@@ -733,6 +756,7 @@ class _TalkCard extends StatelessWidget {
     required this.onPrimary,
     required this.onStep,
     this.onSecondary,
+    this.onClose,
     this.keyHint = true,
   });
 
@@ -748,6 +772,9 @@ class _TalkCard extends StatelessWidget {
   /// Mostrar la tecla `[E]`: en una pantalla táctil no hay teclado.
   final bool keyHint;
 
+  /// Cerrar el globo. En el teléfono no hace falta: va abajo, no tapa nada.
+  final VoidCallback? onClose;
+
   @override
   Widget build(BuildContext context) {
     final talk = _Talk.of(lot.kind, s, firstApp, firstWeb);
@@ -759,9 +786,22 @@ class _TalkCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            '0${i + 1} // ${talk.title}',
-            style: CyberType.mono(size: 11, color: talk.color, letterSpacing: 2),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '0${i + 1} // ${talk.title}',
+                  style: CyberType.mono(size: 11, color: talk.color, letterSpacing: 2),
+                ),
+              ),
+              if (onClose != null)
+                PixelButton(
+                  label: keyHint ? '[ESC] ×' : '×',
+                  dense: true,
+                  color: CyberColors.text1,
+                  onPressed: onClose,
+                ),
+            ],
           ),
           const SizedBox(height: 6),
           Text(talk.body, style: CyberType.body(size: 16)),
@@ -803,6 +843,8 @@ class _DesktopBubble extends StatelessWidget {
     required this.streetHeight,
     required this.width,
     required this.hidden,
+    required this.hushed,
+    required this.onClose,
     required this.s,
     required this.firstApp,
     required this.firstWeb,
@@ -818,6 +860,10 @@ class _DesktopBubble extends StatelessWidget {
   final double streetHeight;
   final double width;
   final bool hidden;
+
+  /// El edificio donde la visita cerró el globo.
+  final LotKind? hushed;
+  final VoidCallback onClose;
   final S s;
   final String? firstApp;
   final ValueChanged<Lot?> onPrimary;
@@ -829,7 +875,7 @@ class _DesktopBubble extends StatelessWidget {
       animation: sim.hud,
       builder: (context, _) {
         final lot = sim.mercLot;
-        final show = !hidden && sim.talking && lot != null;
+        final show = !hidden && sim.talking && lot != null && lot.kind != hushed;
         final k = scale.toDouble();
         final top = World.height - streetHeight / k;
         final cam = (sim.camX * k).roundToDouble() / k;
@@ -868,6 +914,7 @@ class _DesktopBubble extends StatelessWidget {
                       onPrimary: onPrimary,
                       onStep: onStep,
                       onSecondary: onSecondary,
+                      onClose: onClose,
                     ),
             ),
           ),

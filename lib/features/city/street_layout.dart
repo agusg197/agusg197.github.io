@@ -173,7 +173,7 @@ class StreetLayout {
 
   /// Lo que ocupa la langosta asomada del todo, con las pinzas.
   Rect get lobster =>
-      Rect.fromLTWH(lobsterManhole + 0.5, World.curb + 7.0 - 10, 13, 10);
+      Rect.fromLTWH(lobsterManhole.toDouble(), World.curb + 7.0 - 12, 15, 12);
 }
 
 /// Lo que se puede tocar en la calle.

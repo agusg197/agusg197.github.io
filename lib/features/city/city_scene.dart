@@ -383,7 +383,7 @@ class CityFx {
 /// Sale un rato cada diecinueve segundos, y la primera vez recién a los once,
 /// así no aparece justo cuando carga la página. Sin animación queda asomada.
 int lobsterPeek(double t, {required bool animate}) {
-  if (!animate) return 7;
+  if (!animate) return 8;
   const period = 19.0;
   const show = 3.6;
   const rise = 0.35;
@@ -559,6 +559,7 @@ class StreetPainter extends CustomPainter {
     if (fx.drone) _drone(b, t, sp);
     _koi(b, t, sp);
     _clawd(b, t, sp);
+    _lift(b, t, sp);
     _rick(b, t, sp);
     _lobster(b, t, sp);
     _ticker(b, t, sp);
@@ -624,7 +625,16 @@ class StreetPainter extends CustomPainter {
       final lane = isFar ? 50.0 + (i % 2) * 8 : 24.0 + (i % 3) * 9;
       final base = i * 97.0 + (right ? speed : -speed) * t - cam * f;
       final x = cam + (base % span + span) % span - 40;
-      final src = isFar ? (right ? sp.carFar : sp.carFarFlip) : (right ? sp.car : sp.carFlip);
+      // Un modelo por carril: sedán, taxi y patrullero cerca; auto y camión
+      // lejos.
+      final (r, l) = isFar
+          ? (i % 4 == 3 ? sp.truckFar : (sp.carFar, sp.carFarFlip))
+          : switch ((i ~/ 2) % 3) {
+              0 => (sp.car, sp.carFlip),
+              1 => sp.carsMore[0],
+              _ => sp.carsMore[1],
+            };
+      final src = right ? r : l;
       b.add(src, x.roundToDouble(), lane, const Color(0xFFFFFFFF));
     }
   }
@@ -674,6 +684,20 @@ class StreetPainter extends CustomPainter {
       // Arriba de la cabeza, del lado contrario al brazo que saluda.
       b.add(bubble, at.dx + 2, at.dy - bubble.height, const Color(0xFFFFFFFF));
     }
+  }
+
+  /// El ascensor de la torre: la cabina y los dos cables que la sostienen,
+  /// recortados al largo justo. Quieto, para en el piso del trabajo actual.
+  void _lift(_AtlasBatch b, double t, StreetSprites sp) {
+    final e = layers.elevator;
+    final y = (animate ? e.at(t) : e.rest).roundToDouble();
+    final len = min(y - e.anchor, sp.cable.height);
+    if (len > 0) {
+      final cable = Rect.fromLTWH(sp.cable.left, sp.cable.top, 1, len);
+      b.add(cable, e.x + 3, e.anchor, const Color(0xFFFFFFFF));
+      b.add(cable, e.x + 6, e.anchor, const Color(0xFFFFFFFF));
+    }
+    b.add(sp.cabin, e.x, y, const Color(0xFFFFFFFF));
   }
 
   /// El fumador del último farol: da una pitada, baja el brazo y larga el

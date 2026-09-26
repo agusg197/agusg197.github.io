@@ -79,7 +79,7 @@ class _LobsterScareState extends ConsumerState<LobsterScare> with SingleTickerPr
           final dy = (rng.nextDouble() * 2 - 1) * shake;
           // Fogonazo azul en los primeros cuadros.
           final flash = t < 0.3 && (t * 30).floor().isEven;
-          final frame = (t * 5).floor().isEven ? LobsterSprite.open : LobsterSprite.snap;
+          final frame = (t * 5).floor().isEven ? LobsterSprite.bigOpen : LobsterSprite.bigSnap;
 
           return ColoredBox(
             color: flash ? const Color(0xFF0B2A7A) : CyberColors.bg0,
@@ -96,7 +96,7 @@ class _LobsterScareState extends ConsumerState<LobsterScare> with SingleTickerPr
                           final side = min(c.maxWidth * 0.8, MediaQuery.sizeOf(context).height * 0.55);
                           return SizedBox(
                             width: side,
-                            height: side * LobsterSprite.height / LobsterSprite.width,
+                            height: side * LobsterSprite.bigHeight / LobsterSprite.bigWidth,
                             child: CustomPaint(painter: _BigSprite(frame)),
                           );
                         },

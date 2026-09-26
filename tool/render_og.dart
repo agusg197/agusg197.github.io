@@ -25,7 +25,7 @@ final _text = StreetText(
   arcadeSub: 'PROYECTOS WEB',
   cabinets: const [CabinetSign(name: 'BONTA', accent: Color(0xFFFF2A6D), bonta: true)],
   soon: 'PRONTO',
-  workshopTitle: 'TALLERES',
+  workshopTitle: 'TALLER',
   workshopSub: 'APPS · IA · ESCRITORIO',
   bays: const [],
   clinicSub: 'IMPLANTES · SKILLS',
