@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
 
+import 'pixel/egg_sprites.dart';
 import 'pixel/npc_sprite.dart';
 import 'pixel/pixel_canvas.dart';
 import 'pixel/pixel_font.dart';
@@ -288,6 +289,10 @@ Future<StreetLayers> buildStreet(StreetLayout l, StreetText t) async {
     for (final f in NpcSprite.frames) PixelCanvas(f.width, f.height)..stamp(f, 0, 0, flip: true),
     for (final pose in ClawdPose.values) _clawdSprite(pose),
     _clawdBubble(t.greet),
+    for (final f in [RickSprite.up, RickSprite.down, LobsterSprite.open, LobsterSprite.snap])
+      PixelCanvas(f.width, f.height)..stamp(f, 0, 0),
+    // Un píxel blanco: brasa y humo, teñidos al dibujarlos.
+    PixelCanvas(1, 1)..set(0, 0, const Color(0xFFFFFFFF)),
   ];
 
   final (atlas, rects) = _pack([for (final n in neon) n.canvas, ...sprites]);
@@ -323,6 +328,9 @@ Future<StreetLayers> buildStreet(StreetLayout l, StreetText t) async {
       npcFlip: sr.sublist(14, 17),
       clawd: sr.sublist(17, 20),
       clawdBubble: sr[20],
+      rick: sr.sublist(21, 23),
+      lobster: sr.sublist(23, 25),
+      dot: sr[25],
     ),
     ticker: TickerBoard(x: ticker.x, y: ticker.y, width: ticker.width, loop: loop),
     koiArea: Rect.fromLTWH(arcade.x + 14.0, 28, arcade.width - 28.0, 30),
@@ -799,10 +807,9 @@ List<Offset> _ground(PixelCanvas c, List<_Neon> neon, StreetLayout l) {
 
   // Alcantarillas que echan vapor, y charcos en la vereda.
   final arcade = l.lot(LotKind.arcade);
-  final shop = l.lot(LotKind.workshop);
   final tower = l.lot(LotKind.tower);
   final phone = l.lot(LotKind.phone);
-  final manholes = [arcade.x + 40, shop.x + shop.width ~/ 2, tower.x + 30];
+  final manholes = [arcade.x + 40, l.lobsterManhole, tower.x + 30];
   for (final m in manholes) {
     _manhole(c, m);
   }

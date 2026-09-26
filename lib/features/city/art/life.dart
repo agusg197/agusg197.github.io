@@ -20,6 +20,9 @@ class StreetSprites {
     required this.npcFlip,
     required this.clawd,
     required this.clawdBubble,
+    required this.rick,
+    required this.lobster,
+    required this.dot,
   });
 
   final Rect car;
@@ -45,6 +48,13 @@ class StreetSprites {
   /// Clawd en el techo, un cuadro por [ClawdPose], y su globito.
   final List<Rect> clawd;
   final Rect clawdBubble;
+
+  /// Los easter eggs: el fumador (cigarrillo en la boca, brazo abajo) y la
+  /// langosta (pinzas abiertas, cerradas). [dot] es un píxel blanco para la
+  /// brasa y el humo.
+  final List<Rect> rick;
+  final List<Rect> lobster;
+  final Rect dot;
 }
 
 /// Dónde está el cartel de noticias y cuánto mide una vuelta de texto.

@@ -73,11 +73,11 @@
           }
         },
         {
-          "value": 100,
-          "suffix": "k+",
+          "value": 80,
+          "suffix": "%",
           "label": {
-            "es": "Transacciones mensuales",
-            "en": "Monthly transactions"
+            "es": "Clientes que volvieron",
+            "en": "Clients who came back"
           }
         },
         {

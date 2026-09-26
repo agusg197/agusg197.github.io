@@ -39,4 +39,27 @@ void main() {
     _settle(sim);
     expect(sim.mercLot?.kind, LotKind.phone);
   });
+
+  test('los easter eggs: el fumador siempre, la langosta solo asomada', () {
+    final sim = CitySim(StreetLayout(bays: 7, cabinets: 1))..setViewWidth(1400 / 4);
+    final l = sim.layout;
+    expect(sim.hit(l.rick.center)?.kind, SpotKind.rick);
+
+    // Al cargar la página está escondida: la alcantarilla es solo asfalto.
+    sim.time = 1;
+    expect(sim.hit(l.lobster.center)?.kind, isNot(SpotKind.lobster));
+    expect(lobsterPeek(1, animate: true), 0);
+
+    // Un rato después se asoma, y ahí sí.
+    sim.time = 12.5;
+    expect(lobsterPeek(12.5, animate: true), greaterThan(0));
+    expect(sim.hit(l.lobster.center)?.kind, SpotKind.lobster);
+
+    // Casi todo el tiempo está adentro.
+    var out = 0;
+    for (var t = 0.0; t < 190; t += 0.1) {
+      if (lobsterPeek(t, animate: true) > 0) out++;
+    }
+    expect(out / 1900, lessThan(0.25));
+  });
 }

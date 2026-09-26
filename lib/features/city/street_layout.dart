@@ -159,10 +159,25 @@ class StreetLayout {
     final l = lot(LotKind.phone);
     return Rect.fromLTWH(l.x + 42.0, World.ground - 48.0, 22, 48);
   }
+
+  // --- Easter eggs ---
+
+  /// El que fuma contra el último farol, pasando el teléfono.
+  Rect get rick => Rect.fromLTWH(lots.last.right + 7.0, World.ground + 2.0 - 33, 18, 33);
+
+  /// La alcantarilla del taller, de donde se asoma la langosta.
+  int get lobsterManhole {
+    final shop = lot(LotKind.workshop);
+    return shop.x + shop.width ~/ 2;
+  }
+
+  /// Lo que ocupa la langosta asomada del todo, con las pinzas.
+  Rect get lobster =>
+      Rect.fromLTWH(lobsterManhole + 0.5, World.curb + 7.0 - 10, 13, 10);
 }
 
 /// Lo que se puede tocar en la calle.
-enum SpotKind { merc, home, door, cabinet, bay, clinic, tower, phone }
+enum SpotKind { merc, home, door, cabinet, bay, clinic, tower, phone, rick, lobster }
 
 @immutable
 class Spot {

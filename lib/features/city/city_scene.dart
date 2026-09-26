@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/cyber_colors.dart';
 import 'pixel/merc_sprite.dart';
+import 'pixel/egg_sprites.dart';
 import 'pixel/npc_sprite.dart';
 import 'pixel/pixel_canvas.dart';
 import 'street_art.dart';
@@ -48,6 +49,16 @@ class CitySim extends ChangeNotifier {
 
   /// Segundos desde que arrancó la escena; solo avanza si hay animación.
   double time = 0;
+
+  /// Si el último paso fue con animación: sin ella, la langosta queda
+  /// asomada y se puede tocar siempre.
+  bool animating = true;
+
+  /// Cuándo tocaron al fumador por última vez, en [time]: reacciona con una
+  /// pitada.
+  double rickPokedAt = -99;
+
+  void pokeRick() => rickPokedAt = time;
 
   Spot? hovered;
   bool dragging = false;
@@ -193,6 +204,7 @@ class CitySim extends ChangeNotifier {
 
   /// Avanza [dt] segundos. Devuelve si hay que seguir llamando.
   bool tick(double dt, {required bool animate, required bool smooth}) {
+    animating = animate;
     if (animate) time += dt;
 
     final dc = targetX - camX;
@@ -248,12 +260,18 @@ class CitySim extends ChangeNotifier {
         SpotKind.clinic => _layout.clinicFront,
         SpotKind.tower => _layout.tower,
         SpotKind.phone => _layout.booth,
+        SpotKind.rick => _layout.rick,
+        SpotKind.lobster => _layout.lobster,
       };
 
   /// Todo lo tocable, del más específico al más general: una persiana gana
   /// sobre el edificio, y el merc queda último porque siempre se corre a
   /// un costado de lo que se puede tocar.
   Iterable<Spot> get _spots sync* {
+    // Los easter eggs primero: son chicos y están encima de otras cosas. La
+    // langosta solo se puede tocar mientras está afuera.
+    if (lobsterPeek(time, animate: animating) >= 4) yield const Spot(SpotKind.lobster);
+    yield const Spot(SpotKind.rick);
     for (var i = 0; i < _layout.cabinets; i++) {
       yield Spot(SpotKind.cabinet, i);
     }
@@ -359,6 +377,20 @@ class CityFx {
 
   @override
   int get hashCode => Object.hash(animate, fps, rain);
+}
+
+/// Cuántas filas de la langosta asoman por la alcantarilla: cero casi siempre.
+/// Sale un rato cada diecinueve segundos, y la primera vez recién a los once,
+/// así no aparece justo cuando carga la página. Sin animación queda asomada.
+int lobsterPeek(double t, {required bool animate}) {
+  if (!animate) return 7;
+  const period = 19.0;
+  const show = 3.6;
+  const rise = 0.35;
+  final p = (t + period - 11) % period;
+  if (p > show) return 0;
+  final k = p < rise ? p / rise : (p > show - rise ? (show - p) / rise : 1.0);
+  return (LobsterSprite.height * k).round();
 }
 
 /// Los recortes del atlas que van en este cuadro: neones, autos, koi, gente.
@@ -527,6 +559,8 @@ class StreetPainter extends CustomPainter {
     if (fx.drone) _drone(b, t, sp);
     _koi(b, t, sp);
     _clawd(b, t, sp);
+    _rick(b, t, sp);
+    _lobster(b, t, sp);
     _ticker(b, t, sp);
     _people(b, cam, viewW, t, sp);
     b.draw(canvas, layers.neonAtlas);
@@ -642,6 +676,63 @@ class StreetPainter extends CustomPainter {
     }
   }
 
+  /// El fumador del último farol: da una pitada, baja el brazo y larga el
+  /// humo. La brasa se aviva mientras pita. Quieto, queda pitando.
+  void _rick(_AtlasBatch b, double t, StreetSprites sp) {
+    final r = sim.layout.rick;
+    final p = animate ? t % 6.5 : 0.9;
+    // Si lo tocan, pita en el acto, con la brasa bien viva.
+    final poked = animate && t - sim.rickPokedAt < 1.2;
+    final drag = poked || p < 1.8;
+    b.add(sp.rick[drag ? 0 : 1], r.left, r.top, const Color(0xFFFFFFFF));
+    final (ex, ey) = drag ? RickSprite.emberUp : RickSprite.emberDown;
+    // Pocos tonos a propósito: cada color distinto es un Paint guardado.
+    final glow = poked ? 3 : drag ? (animate && (t * 7).floor().isEven ? 3 : 2) : 1;
+    b.add(sp.dot, r.left + ex, r.top + ey, _embers[glow]);
+    // El humo sale de la boca después de la pitada y sube torciéndose.
+    final mouthX = r.left + 5;
+    final mouthY = r.top + 8;
+    for (var i = 0; i < 4; i++) {
+      final age = animate ? p - 1.9 - i * 0.3 : 0.5 + i * 0.45;
+      if (age <= 0 || age >= 2.4) continue;
+      final x = (mouthX - age * 2.5 + sin(age * 3 + i) * 1.4).roundToDouble();
+      final y = (mouthY - age * 7).roundToDouble();
+      final fade = _smoke[((1 - age / 2.4) * (_smoke.length - 1)).round()];
+      b.add(sp.dot, x, y, fade);
+      if (age > 0.6) b.add(sp.dot, x + 1, y, fade);
+    }
+  }
+
+  static const _embers = [
+    Color(0xFF7A2A10),
+    Color(0xFFB8461A),
+    Color(0xFFFF6A2A),
+    Color(0xFFFFB050),
+  ];
+
+  static const _smoke = [
+    Color(0x14B4BCCC),
+    Color(0x33B4BCCC),
+    Color(0x55B4BCCC),
+    Color(0x80B4BCCC),
+  ];
+
+  /// La langosta azul se asoma por la alcantarilla del taller cada tanto,
+  /// cierra las pinzas un par de veces y se vuelve a meter.
+  void _lobster(_AtlasBatch b, double t, StreetSprites sp) {
+    final v = lobsterPeek(t, animate: animate);
+    if (v <= 0) return;
+    final snap = animate && (t * 2.6).floor() % 3 == 0;
+    final src = sp.lobster[snap ? 1 : 0];
+    final r = sim.layout.lobster;
+    b.add(
+      Rect.fromLTWH(src.left, src.top, src.width, v.toDouble()),
+      r.left.roundToDouble(),
+      r.bottom - v,
+      const Color(0xFFFFFFFF),
+    );
+  }
+
   static const _umbrellas = [
     Color(0xFF00F0FF),
     Color(0xFFFF2A6D),
@@ -722,6 +813,8 @@ class StreetPainter extends CustomPainter {
   void _hover(Canvas canvas) {
     final spot = sim.hovered;
     if (spot == null) return;
+    // Los easter eggs no se marcan: se encuentran.
+    if (spot.kind == SpotKind.rick || spot.kind == SpotKind.lobster) return;
     final r = sim.rectOf(spot).inflate(3);
     final color = spot.kind == SpotKind.cabinet && spot.index >= sim.litCabinets
         ? CyberColors.text2

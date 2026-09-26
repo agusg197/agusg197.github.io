@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/active_profile.dart';
 import '../../app/effects_controller.dart';
@@ -22,6 +23,7 @@ import 'city_strings.dart';
 import 'intro_store.dart';
 import 'merc_dossier.dart';
 import 'panels/help_panel.dart';
+import 'panels/lobster_scare.dart';
 import 'panels/phone_panel.dart';
 import 'panels/ripperdoc_panel.dart';
 import 'panels/terminal_booth.dart';
@@ -34,7 +36,7 @@ import 'pixel/pixel_ui.dart';
 import 'street_art.dart';
 import 'street_layout.dart';
 
-enum CityOverlay { welcome, help, dossier, terminal, bonta, web, workshop, ripperdoc, tower, phone }
+enum CityOverlay { welcome, lobster, help, dossier, terminal, bonta, web, workshop, ripperdoc, tower, phone }
 
 /// La cuadra: el sitio entero como una calle que se camina de costado.
 class CityView extends ConsumerStatefulWidget {
@@ -73,6 +75,9 @@ BayIcon _iconFor(Project p) {
 /// Los proyectos que van al arcade, en el orden del perfil activo.
 List<Project> webFor(PortfolioData data, ProfileVariant profile) =>
     data.projectsFor(profile).where((p) => p.isWeb).toList(growable: false);
+
+/// Los easter eggs no tienen cartelito al pasar el mouse.
+bool _isEgg(Spot s) => s.kind == SpotKind.rick || s.kind == SpotKind.lobster;
 
 /// Lo que entra en una marquesina: la primera palabra, seis letras.
 String _marquee(String name) {
@@ -326,8 +331,32 @@ class _CityViewState extends ConsumerState<CityView>
         _open(CityOverlay.tower);
       case SpotKind.phone:
         _open(CityOverlay.phone);
+      // Los easter eggs. Nunca se anuncian: ni globo, ni marca, ni ayuda.
+      case SpotKind.rick:
+        // Recién al tercer toque seguido: los dos primeros solo lo hacen
+        // pitar, que es lo que invita a seguir tocando.
+        final now = DateTime.now();
+        final last = _rickLast;
+        if (last == null || now.difference(last) > const Duration(seconds: 5)) _rickPokes = 0;
+        _rickLast = now;
+        _rickPokes++;
+        _sim.pokeRick();
+        _kick();
+        if (_rickPokes >= 3) {
+          _rickPokes = 0;
+          launchUrl(Uri.parse(_rickRoll), mode: LaunchMode.externalApplication);
+        }
+      case SpotKind.lobster:
+        _open(CityOverlay.lobster);
     }
   }
+
+  static const _rickRoll = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+
+  /// Los toques seguidos al fumador: cinco segundos quieto y se empieza de
+  /// nuevo.
+  int _rickPokes = 0;
+  DateTime? _rickLast;
 
   void _open(CityOverlay o) => setState(() => _overlay = o);
 
@@ -547,7 +576,7 @@ class _CityViewState extends ConsumerState<CityView>
                     child: _Hints(s: s),
                   ),
                 ),
-              if (!mobile && _sim.hovered != null)
+              if (!mobile && _sim.hovered != null && !_isEgg(_sim.hovered!))
                 Positioned(
                   bottom: 16,
                   right: 16,
@@ -564,6 +593,7 @@ class _CityViewState extends ConsumerState<CityView>
               if (_overlay != null)
                 Positioned.fill(
                   child: switch (_overlay!) {
+                    CityOverlay.lobster => LobsterScare(onClose: _close),
                     CityOverlay.welcome => WelcomePanel(
                         lots: _sim.lots,
                         onClose: _close,
@@ -1076,6 +1106,7 @@ class _SpotLabel extends StatelessWidget {
       SpotKind.clinic => s.spotClinic,
       SpotKind.tower => s.spotTower,
       SpotKind.phone => s.spotPhone,
+      SpotKind.rick || SpotKind.lobster => '',
     };
     return PixelBox(
       border: off ? CyberColors.text2 : CyberColors.yellow,

@@ -6,7 +6,7 @@
 > la API de GitHub, transición glitch entre rutas y despliegue.
 > Entorno: Flutter 3.47.0 stable / Dart 3.13 / Windows 11.
 > Decisiones confirmadas: paleta Night City, one-page, ES/EN, full glitch por defecto,
-> sin sonido, hosting GitHub Pages o Firebase, paquete `agusg197_cyber`.
+> sin sonido (salvo un easter egg, bajito y sintetizado), hosting GitHub Pages, paquete `agusg197_cyber`.
 >
 > Correr en local: `flutter run -d web-server --web-port 5173` y abrir http://localhost:5173.
 > Para verificar como en producción: `flutter build web --release` y servir `build/web`.
