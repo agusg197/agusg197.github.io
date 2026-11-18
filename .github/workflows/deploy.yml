@@ -31,9 +31,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # La versión va fija, la misma con la que se desarrolla y se prueba en
+      # local. Con "la última estable" el deploy se rompió sin que cambiara el
+      # código: la versión siguiente marca `package:flutter/material.dart` como
+      # obsoleto (pide migrar a `package:material_ui`), y `flutter analyze`
+      # falla con cualquier aviso. Subir este número es una tarea aparte: va
+      # junto con esa migración, probada en local.
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: 3.47.0
           cache: true
 
       - run: flutter pub get
