@@ -53,6 +53,8 @@ Map<String, List<RunBlock>> runPipeline(
     'leadbox' => _runLeadbox(text, locale, s),
     'echo' => _runEcho(text, locale, s),
     'cifra' => _runCifra(text, locale, s),
+    'aquaroute' => _runAqua(text, locale, s),
+    'triage' => _runTriage(text, locale, s),
     _ => const {},
   };
 }
@@ -904,6 +906,21 @@ Map<String, List<RunBlock>> _runLeadbox(String raw, AppLocale l, S s) {
       RunBlock(_es(l, 'QU\u00c9 QUEDA REGISTRADO', 'WHAT GETS RECORDED'), m.evidence,
           tone: RunTone.ok),
     ],
+    'salida': [
+      RunBlock(
+        _es(l, 'HOY', 'TODAY'),
+        _es(l,
+            '${m.name}: publicado con el resto de la app, en uso por los clientes de la empresa.',
+            "${m.name}: released with the rest of the app, in use by the company's clients."),
+        tone: RunTone.ok,
+      ),
+      RunBlock(
+        _es(l, 'LO QUE ACOMPAÑA AL CAMBIO', 'WHAT COMES WITH THE CHANGE'),
+        _es(l,
+            'aviso de versión nueva · tour de primer uso · métricas de cada corrida de sync',
+            'new-version prompt · first-run tour · metrics for every sync run'),
+      ),
+    ],
   };
 }
 
@@ -1197,6 +1214,408 @@ Map<String, List<RunBlock>> _runEcho(String raw, AppLocale l, S s) {
             'Streaming, while the meeting goes on. From audio to the first word of the '
             'answer there are about three seconds, and the history stores how long each one '
             'took.'),
+      ),
+    ],
+  };
+}
+
+/// ------------------------------------------------------------ AquaRoute ---
+///
+/// La cuenta de una entrega, como la hace la app: lo que se deja, lo que se
+/// devuelve, cómo se paga y qué le pasa al saldo y a los envases del cliente.
+/// El cliente y los precios son de ejemplo: los reales los carga el dueño.
+
+const _aqSaldoAnterior = 4000;
+const _aqEnvasesAntes = 5;
+
+/// Producto, precio de ejemplo y cómo se lo nombra en castellano y en inglés.
+const _aqProductos = <(String, String, int, String)>[
+  ('bidón de 10 L', '10 L bottle', 2200, r'(?:bidon(?:es)?|botellon(?:es)?|bottles?)\s+(?:de\s+|of\s+)?10'),
+  ('sifón', 'siphon', 1200, r'(?:sifon(?:es)?|siphons?)'),
+  ('bidón de 20 L', '20 L bottle', 3500, r'(?:bidon(?:es)?|botellon(?:es)?|bottles?)'),
+];
+
+String _aqNorm(String s) => s
+    .toLowerCase()
+    .replaceAll('á', 'a')
+    .replaceAll('é', 'e')
+    .replaceAll('í', 'i')
+    .replaceAll('ó', 'o')
+    .replaceAll('ú', 'u');
+
+int? _aqNumero(String token) =>
+    int.tryParse(token) ?? _units[token] ?? const {'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6}[token];
+
+/// $ 14.000, con el punto de miles de acá.
+String _aqPesos(int v) {
+  final digitos = v.abs().toString();
+  final buf = StringBuffer();
+  for (var i = 0; i < digitos.length; i++) {
+    if (i > 0 && (digitos.length - i) % 3 == 0) buf.write('.');
+    buf.write(digitos[i]);
+  }
+  return '${v < 0 ? '-' : ''}\$ $buf';
+}
+
+Map<String, List<RunBlock>> _runAqua(String raw, AppLocale l, S s) {
+  var texto = _aqNorm(raw);
+  const cant = r'(\d+|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|one|two|three|four|five|six)';
+
+  final ausente = RegExp(r'no estaba|no habia|ausente|reprogram|no atend|not home|nobody|reschedul|no one')
+      .hasMatch(texto);
+
+  // Los devueltos se leen primero y se sacan del texto, para no contarlos
+  // después como entregados.
+  var devueltos = 0;
+  final dev = RegExp('(?:devuelve[n]?|devolvio|retira|returns?|gives? back)\\s+$cant').firstMatch(texto);
+  if (dev != null) {
+    devueltos = _aqNumero(dev.group(1)!) ?? 0;
+    texto = texto.replaceRange(dev.start, dev.end, ' ');
+  }
+
+  final lineas = <(String, int, int)>[];
+  for (final (es, en, precio, patron) in _aqProductos) {
+    final re = RegExp('$cant\\s+$patron');
+    var unidades = 0;
+    for (final m in re.allMatches(texto).toList().reversed) {
+      unidades += _aqNumero(m.group(1)!) ?? 0;
+      texto = texto.replaceRange(m.start, m.end, ' ');
+    }
+    if (unidades > 0) lineas.add((_es(l, es, en), unidades, precio));
+  }
+
+  final total = lineas.fold<int>(0, (a, e) => a + e.$2 * e.$3);
+  final entregados = lineas.fold<int>(0, (a, e) => a + e.$2);
+
+  if (!ausente && lineas.isEmpty) {
+    final aviso = RunBlock(
+      _es(l, 'NO HAY ENTREGA', 'NO DELIVERY'),
+      _es(l,
+          'Escribí qué se deja — «3 bidones, devuelve 2, paga en efectivo» — y se ve la cuenta completa.',
+          'Type what is delivered — "3 bottles, returns 2, pays cash" — to see the full sum.'),
+      tone: RunTone.warn,
+    );
+    return {
+      for (final id in ['clientes', 'rutas', 'recorrido', 'entrega', 'saldos', 'accesos']) id: [aviso],
+    };
+  }
+
+  // Cómo paga. Un monto escrito manda; lo que falte queda fiado.
+  final fiadoDicho = RegExp(r'fiad|cuenta corriente|on credit|credit|debe|owes').hasMatch(texto);
+  final transferencia = RegExp(r'transfer').hasMatch(texto);
+  final monto = RegExp(r'(?:paga|pago|abona|pays?|paid)\s+(?:con\s+)?\$?\s*(\d[\d.]*)').firstMatch(texto);
+  final medio = transferencia ? _es(l, 'transferencia', 'transfer') : _es(l, 'efectivo', 'cash');
+
+  var pagado = total;
+  if (monto != null) {
+    pagado = int.tryParse(monto.group(1)!.replaceAll('.', '')) ?? total;
+  } else if (fiadoDicho && !transferencia && !RegExp(r'efectivo|cash').hasMatch(texto)) {
+    pagado = 0;
+  }
+  final fiado = pagado < total ? total - pagado : 0;
+  final aCuenta = pagado > total ? pagado - total : 0;
+  final saldoNuevo = _aqSaldoAnterior + fiado - aCuenta;
+  final envasesNuevo = (_aqEnvasesAntes + entregados - devueltos).clamp(0, 9999);
+
+  final cliente = RunBlock(
+    _es(l, 'CLIENTE DE EJEMPLO', 'EXAMPLE CUSTOMER'),
+    _es(l,
+        'Zona Norte · reparto lunes y jueves\ndirección verificada en el mapa\n'
+            'saldo anterior: ${_aqPesos(_aqSaldoAnterior)} · envases en préstamo: $_aqEnvasesAntes',
+        'North zone · delivery Monday and Thursday\naddress verified on the map\n'
+            'previous balance: ${_aqPesos(_aqSaldoAnterior)} · containers on loan: $_aqEnvasesAntes'),
+  );
+  final ruta = RunBlock(
+    _es(l, 'LA RUTA DE HOY', "TODAY'S ROUTE"),
+    _es(l,
+        '12 paradas · esta es la 3\nlas entregas se crean recién cuando el repartidor inicia la ruta',
+        '12 stops · this is number 3\ndeliveries are created only when the driver starts the route'),
+  );
+  final accesos = RunBlock(
+    _es(l, 'QUIÉN VE QUÉ', 'WHO SEES WHAT'),
+    _es(l,
+        'repartidor: esta parada y su ruta\nadministrador: además, reportes, equipo y precios',
+        'driver: this stop and their route\nadministrator: also reports, team and prices'),
+  );
+
+  if (ausente) {
+    return {
+      'clientes': [cliente],
+      'rutas': [ruta],
+      'recorrido': [
+        RunBlock(
+          _es(l, 'PARADA 3 DE 12', 'STOP 3 OF 12'),
+          _es(l,
+              'reprogramada · motivo: no había nadie\nvuelve a la lista del administrador para otro día',
+              'rescheduled · reason: nobody home\nit goes back to the administrator list for another day'),
+          tone: RunTone.warn,
+        ),
+      ],
+      'entrega': [
+        RunBlock(
+          _es(l, 'SIN ENTREGA', 'NO DELIVERY'),
+          _es(l, 'No se dejó ni se cobró nada: no se genera ninguna venta.',
+              'Nothing was left or collected: no sale is created.'),
+        ),
+      ],
+      'saldos': [
+        RunBlock(
+          _es(l, 'SALDO Y ENVASES', 'BALANCE AND CONTAINERS'),
+          _es(l, 'sin cambios: ${_aqPesos(_aqSaldoAnterior)} · $_aqEnvasesAntes envases',
+              'unchanged: ${_aqPesos(_aqSaldoAnterior)} · $_aqEnvasesAntes containers'),
+          tone: RunTone.ok,
+        ),
+      ],
+      'accesos': [accesos],
+    };
+  }
+
+  final detalle = [
+    for (final (nombre, unidades, precio) in lineas)
+      '$unidades × $nombre  ${_aqPesos(precio)}  =  ${_aqPesos(unidades * precio)}',
+  ].join('\n');
+
+  final pago = [
+    if (pagado > 0) '$medio: ${_aqPesos(pagado > total ? total : pagado)}',
+    if (fiado > 0) _es(l, 'fiado: ${_aqPesos(fiado)}', 'on credit: ${_aqPesos(fiado)}'),
+    if (aCuenta > 0)
+      _es(l, 'pago a cuenta de la deuda: ${_aqPesos(aCuenta)}', 'payment towards the balance: ${_aqPesos(aCuenta)}'),
+  ].join('\n');
+
+  return {
+    'clientes': [cliente],
+    'rutas': [ruta],
+    'recorrido': [
+      RunBlock(
+        _es(l, 'PARADA 3 DE 12', 'STOP 3 OF 12'),
+        _es(l, 'en curso → entregada\nel mapa la pinta con el color de su estado',
+            'in progress → delivered\nthe map paints it in the colour of its status'),
+        tone: RunTone.ok,
+      ),
+    ],
+    'entrega': [
+      RunBlock(_es(l, 'LO QUE SE DEJA · PRECIOS DE EJEMPLO', 'WHAT IS DELIVERED · EXAMPLE PRICES'), detalle),
+      RunBlock('TOTAL', _aqPesos(total), tone: RunTone.ok),
+      RunBlock(_es(l, 'CÓMO PAGA', 'HOW IT IS PAID'), pago, tone: fiado > 0 ? RunTone.warn : RunTone.ok),
+    ],
+    'saldos': [
+      RunBlock(
+        _es(l, 'SALDO DEL CLIENTE', 'CUSTOMER BALANCE'),
+        fiado > 0
+            ? '${_aqPesos(_aqSaldoAnterior)} + ${_aqPesos(fiado)} = ${_aqPesos(saldoNuevo)}'
+            : aCuenta > 0
+                ? '${_aqPesos(_aqSaldoAnterior)} − ${_aqPesos(aCuenta)} = ${_aqPesos(saldoNuevo)}'
+                : _es(l, 'sin cambios: ${_aqPesos(saldoNuevo)}', 'unchanged: ${_aqPesos(saldoNuevo)}'),
+        tone: fiado > 0 ? RunTone.warn : RunTone.ok,
+      ),
+      RunBlock(
+        _es(l, 'ENVASES EN PRÉSTAMO', 'CONTAINERS ON LOAN'),
+        _es(l,
+            '$_aqEnvasesAntes + $entregados entregados − $devueltos devueltos = $envasesNuevo',
+            '$_aqEnvasesAntes + $entregados delivered − $devueltos returned = $envasesNuevo'),
+        tone: RunTone.ok,
+      ),
+      if (devueltos > 0)
+        RunBlock(
+          _es(l, 'EL ERROR QUE CORREGÍ', 'THE BUG I FIXED'),
+          _es(l,
+              'La versión anterior no restaba los devueltos: daba ${_aqEnvasesAntes + entregados}.\n'
+                  'Estaba también en producción.',
+              'The previous version did not subtract returns: it gave ${_aqEnvasesAntes + entregados}.\n'
+                  'It was in production too.'),
+          tone: RunTone.danger,
+        ),
+    ],
+    'accesos': [accesos],
+  };
+}
+
+/// --------------------------------------------------------------- Triage ---
+///
+/// El recorrido de un ticket por el clasificador en modo shadow. Lo que se
+/// calcula acá es una imitación por reglas: tapa datos personales con
+/// expresiones regulares y elige entre categorías de ejemplo. La taxonomía,
+/// los tickets y el proveedor reales son privados. Los tokens son los medidos.
+
+const _trCategorias = <String, (String, List<String>, List<(String, String)>)>{
+  'acceso': (
+    'Access',
+    ['sesion', 'login', 'contrasena', 'password', 'ingresar', 'sign in', 'log in', 'clave'],
+    [('No puede ingresar', 'Cannot sign in'), ('Recuperar contraseña', 'Password reset'), ('Cuenta bloqueada', 'Locked account')],
+  ),
+  'sincronización': (
+    'Sync',
+    ['sync', 'sincroniz', 'foto', 'photo', 'subir', 'upload', 'no carga la galeria'],
+    [('Fotos que no suben', 'Photos not uploading'), ('Cambios que no aparecen', 'Changes not showing'), ('Sync lenta', 'Slow sync')],
+  ),
+  'reportes': (
+    'Reports',
+    ['reporte', 'report', 'export', 'metric', 'estadistic'],
+    [('Reporte que no carga', 'Report not loading'), ('Datos que no coinciden', 'Figures do not match'), ('Exportación', 'Export')],
+  ),
+  'facturación': (
+    'Billing',
+    ['cobr', 'factura', 'plan', 'billing', 'charge', 'invoice', 'pago', 'payment'],
+    [('Cobro duplicado', 'Duplicate charge'), ('Cambio de plan', 'Plan change'), ('Factura', 'Invoice')],
+  ),
+  'usuarios': (
+    'Users',
+    ['usuario', 'user', 'permiso', 'permission', 'sucursal', 'location', 'rol'],
+    [('Alta de usuario', 'New user'), ('Permisos', 'Permissions'), ('Cambio de sucursal', 'Location change')],
+  ),
+};
+
+/// FNV-1a de 32 bits: alcanza para mostrar que el hash sigue al texto.
+String _trHash(String texto) {
+  var h = 0x811c9dc5;
+  for (final c in texto.codeUnits) {
+    h ^= c;
+    h = (h * 0x01000193) & 0xFFFFFFFF;
+  }
+  return h.toRadixString(16).padLeft(8, '0');
+}
+
+Map<String, List<RunBlock>> _runTriage(String raw, AppLocale l, S s) {
+  // 1 · redacción.
+  var correos = 0, telefonos = 0, personas = 0;
+  var redactado = raw.replaceAllMapped(RegExp(r'[\w.+-]+@[\w-]+(?:\.[\w-]+)+'), (_) {
+    correos++;
+    return '<EMAIL>';
+  });
+  redactado = redactado.replaceAllMapped(RegExp(r'\+?\d[\d\s().-]{5,}\d'), (_) {
+    telefonos++;
+    return _es(l, '<TELÉFONO>', '<PHONE>');
+  });
+  redactado = redactado.replaceAllMapped(
+    RegExp(r"\b(soy|me llamo|mi nombre es|my name is|i am|i'm|this is)\s+([A-ZÁÉÍÓÚÑ][\wáéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][\wáéíóúñ]+)?)",
+        caseSensitive: false),
+    (m) {
+      // La frase de presentación puede ir en minúscula; el nombre, no.
+      final nombre = m.group(2)!;
+      if (nombre[0] == nombre[0].toLowerCase()) return m.group(0)!;
+      personas++;
+      return '${m.group(1)} ${_es(l, '<PERSONA>', '<PERSON>')}';
+    },
+  );
+  final tapado = [
+    if (correos > 0) _es(l, '$correos correo${correos == 1 ? '' : 's'}', '$correos email${correos == 1 ? '' : 's'}'),
+    if (telefonos > 0)
+      _es(l, '$telefonos teléfono${telefonos == 1 ? '' : 's'}', '$telefonos phone number${telefonos == 1 ? '' : 's'}'),
+    if (personas > 0) _es(l, '$personas nombre${personas == 1 ? '' : 's'}', '$personas name${personas == 1 ? '' : 's'}'),
+  ];
+
+  // 2 · la clasificación de ejemplo.
+  final norm = _aqNorm(raw);
+  final ingles = RegExp(r'\b(the|is|are|not|my|how|since|please|cannot|can.t|does)\b').allMatches(norm).length;
+  final castellano = RegExp(r'\b(el|la|los|no|mi|que|como|desde|puedo|quiero|por)\b').allMatches(norm).length;
+  final idioma = ingles > castellano ? 'en' : 'es';
+
+  var categoria = 'otro';
+  var mejor = 0;
+  for (final e in _trCategorias.entries) {
+    final hits = e.value.$2.where(norm.contains).length;
+    if (hits > mejor) {
+      mejor = hits;
+      categoria = e.key;
+    }
+  }
+  final def = _trCategorias[categoria];
+  final nombreCat = def == null ? _es(l, 'Otro', 'Other') : _es(l, categoria[0].toUpperCase() + categoria.substring(1), def.$1);
+  final subs = def == null
+      ? [_es(l, 'Consulta general', 'General question')]
+      : [for (final (es, en) in def.$3) _es(l, es, en)];
+  // La subcategoría: la primera cuyas palabras aparecen; si no, la primera.
+  var sub = subs.first;
+  if (def != null) {
+    for (final (es, en) in def.$3) {
+      final claves = _aqNorm('$es $en').split(RegExp(r'\s+')).where((w) => w.length > 4);
+      if (claves.any(norm.contains)) {
+        sub = _es(l, es, en);
+        break;
+      }
+    }
+  }
+  final urgente = RegExp(r'urgent|asap|ya mismo|no puedo|cannot|can.t|!!|caido|down').hasMatch(norm);
+  final urgencia = urgente ? _es(l, 'alta', 'high') : _es(l, 'media', 'medium');
+
+  return {
+    'redaccion': [
+      RunBlock(_es(l, 'LO QUE SALE DE LA PLATAFORMA', 'WHAT LEAVES THE PLATFORM'), redactado),
+      RunBlock(
+        _es(l, 'QUÉ SE TAPÓ', 'WHAT WAS COVERED'),
+        tapado.isEmpty
+            ? _es(l, 'nada: no había datos personales a la vista', 'nothing: no personal data in sight')
+            : tapado.join(' · '),
+        tone: RunTone.ok,
+      ),
+    ],
+    'sombra': [
+      RunBlock(
+        _es(l, 'PRODUCCIÓN', 'PRODUCTION'),
+        _es(l, 'El clasificador de siempre decide, y el ticket sigue su curso.',
+            'The usual classifier decides, and the ticket follows its course.'),
+      ),
+      RunBlock(
+        _es(l, 'SOMBRA', 'SHADOW'),
+        _es(l,
+            'El segundo clasificador escribe su fila aparte.\nticket: sin cambios · estado: sin cambios',
+            'The second classifier writes its own row.\nticket: unchanged · status: unchanged'),
+        tone: RunTone.ok,
+      ),
+    ],
+    'corrida': [
+      RunBlock(
+        _es(l, 'ID DE CORRIDA', 'RUN ID'),
+        _es(l, 'shadow-t6-j2-<modelo fijo>\nfuente · taxonomía v6 · prompt j2 · modelo',
+            'shadow-t6-j2-<pinned model>\nsource · taxonomy v6 · prompt j2 · model'),
+      ),
+      RunBlock(
+        _es(l, 'REVISIÓN DEL TEXTO', 'TEXT REVISION'),
+        _es(l, '${_trHash(redactado)}\nsi el ticket cambia, cambia el hash y se escribe una fila nueva',
+            '${_trHash(redactado)}\nif the ticket changes, the hash changes and a new row is written'),
+      ),
+    ],
+    'dos_pasos': [
+      RunBlock(
+        _es(l, 'LLAMADA 1', 'CALL 1'),
+        _es(l, 'idioma: $idioma\ncategoría: $nombreCat\nurgencia: $urgencia',
+            'language: $idioma\ncategory: $nombreCat\nurgency: $urgencia'),
+      ),
+      RunBlock(
+        _es(l, 'LLAMADA 2 · SOLO LAS DE «${nombreCat.toUpperCase()}»', 'CALL 2 · ONLY THOSE UNDER "${nombreCat.toUpperCase()}"'),
+        _es(l, 'opciones: ${subs.join(' · ')}\nelegida: $sub', 'options: ${subs.join(' · ')}\nchosen: $sub'),
+        tone: RunTone.ok,
+      ),
+      RunBlock(
+        _es(l, 'ACLARACIÓN', 'NOTE'),
+        _es(l, 'Categorías de ejemplo, elegidas por reglas. La taxonomía real es privada.',
+            'Example categories, picked by rules. The real taxonomy is private.'),
+      ),
+    ],
+    'resultado': [
+      RunBlock(
+        _es(l, 'TOKENS DE ENTRADA POR TICKET · MEDIDOS', 'INPUT TOKENS PER TICKET · MEASURED'),
+        _es(l, 'una llamada:  ~9.200\ndos pasos:    ~2.800   (~70% menos)',
+            'one call:    ~9,200\ntwo steps:   ~2,800   (~70% fewer)'),
+        tone: RunTone.ok,
+      ),
+      RunBlock(
+        _es(l, 'LA CONFIANZA', 'THE CONFIDENCE'),
+        _es(l,
+            'La de «$sub» es condicional a haber elegido «$nombreCat».\n'
+                'No se compara directo con la de una sola llamada.',
+            'The one for "$sub" is conditional on having chosen "$nombreCat".\n'
+                'It is not compared directly with the single-call one.'),
+        tone: RunTone.warn,
+      ),
+    ],
+    'robustez': [
+      RunBlock(
+        _es(l, 'SI ALGO FALLA', 'IF SOMETHING FAILS'),
+        _es(l,
+            '429 o 5xx: se reintenta\notro 4xx: falla en el momento\nfalla la llamada 2: no se escribe media fila',
+            '429 or 5xx: it retries\nany other 4xx: it fails right away\ncall 2 fails: no half row is written'),
+        tone: RunTone.warn,
       ),
     ],
   };

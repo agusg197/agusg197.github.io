@@ -86,6 +86,31 @@ const _glossary = <String, (String, String)>{
     'A program that turns voice into text on the computer itself.'
   ),
   'android': ('El sistema de la mayoría de los celulares.', 'The system most phones run.'),
+  'gorouter': (
+    'La pieza que decide qué pantalla se ve y quién puede entrar a cada una.',
+    'The piece that decides which screen shows and who may enter each one.'
+  ),
+  'openstreetmap': (
+    'Un mapa libre del mundo, como el de las apps de viaje, sin costo por uso.',
+    'A free map of the world, like the one in travel apps, with no usage fee.'
+  ),
+  'laravel': (
+    'Una herramienta para armar el lado del servidor: lo que no se ve y hace el trabajo.',
+    'A tool for building the server side: the part you do not see that does the work.'
+  ),
+  'php': ('El lenguaje en el que se escribe con Laravel.', 'The language Laravel is written in.'),
+  'claude api': (
+    'La inteligencia artificial de Anthropic, usada desde el sistema.',
+    "Anthropic's artificial intelligence, used from inside the system."
+  ),
+  'presidio': (
+    'Una herramienta que tapa nombres, correos y teléfonos antes de que un texto salga.',
+    'A tool that covers names, emails and phone numbers before a text leaves.'
+  ),
+  'pest': (
+    'Pruebas automáticas para el lado del servidor.',
+    'Automated tests for the server side.'
+  ),
 };
 
 /// Qué se le da a cada demo, dicho como lo diría cualquiera.
@@ -96,6 +121,8 @@ String _inputLabel(String? kind, S s) => switch (kind) {
       'leadbox' => s.t('UNA PARTE DE LA APP', 'A PART OF THE APP'),
       'echo' => s.t('ALGO QUE ALGUIEN DICE EN LA REUNIÓN', 'SOMETHING SOMEONE SAYS IN THE MEETING'),
       'cifra' => s.t('UN MONTO, COMO LO ESCRIBIRÍAS', 'AN AMOUNT, THE WAY YOU WOULD TYPE IT'),
+      'aquaroute' => s.t('UNA ENTREGA, COMO LA DIRÍA EL REPARTIDOR', 'A DELIVERY, THE WAY THE DRIVER WOULD SAY IT'),
+      'triage' => s.t('UN TICKET DE SOPORTE', 'A SUPPORT TICKET'),
       _ => s.t('LO QUE LE DAS', 'WHAT YOU GIVE IT'),
     };
 

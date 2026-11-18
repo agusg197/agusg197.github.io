@@ -160,11 +160,17 @@ el código, y los tres repos de los proyectos ya están ahí.
 - [x] Las capturas de Leadbox, redactadas.
 - [x] **Las tipografías viajan con el sitio.** Están en `assets/google_fonts/` y
       `GoogleFonts.config.allowRuntimeFetching = false` impide que el paquete salga a
-      buscarlas. La pantalla de carga usa las mismas, servidas desde `web/fonts/`. Antes
+      buscarlas. La pantalla de carga usa los mismos archivos (`assets/assets/google_fonts/`), recortados con `tool/subset_fonts.py`. Antes
       cada visita hacía tres pedidos a Google; ahora, ninguno. Verificado en el panel de red.
-- [x] **Los CV se publican sin el teléfono.** `tool/cv_sin_telefono.py` toma los originales
-      de `CVs/` (que no se suben) y escribe en `assets/cv/` una copia sin el número: no lo
-      tapa con un recuadro, lo saca del contenido, así no se puede seleccionar ni extraer.
+- [x] **Los CV se publican sin el teléfono.** Desde noviembre de 2026 los seis CV (Flutter,
+      AI Engineer y Full Stack, en castellano y en inglés) se generan en el repo del
+      portafolio v2 con `python cv/build_cv.py --public "<este repo>/assets/cv" en es
+      fullstack-en fullstack-es ai-en ai-es`: la opción `--public` los arma sin el número.
+      `tool/cv_sin_telefono.py` queda para PDF viejos y no hay que correrlo sobre estos.
+- [x] **La vista rápida no publica nada de más.** `web/cv/` se genera con
+      `tool/build_vista_rapida.py`; el correo se arma en el navegador, igual que en el
+      sitio, y `test/vista_rapida_test.dart` verifica que no haya teléfono ni correo
+      escrito y que la página esté al día con el JSON.
 - [x] **El correo no está escrito entero en ningún asset.** El JSON guarda `emailUser` y
       `emailHost` por separado y el enlace como `mailto:` a secas; la dirección se arma en
       el modelo. En la página se ve igual y el botón de copiar funciona igual.

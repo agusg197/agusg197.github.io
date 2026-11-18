@@ -180,8 +180,13 @@ class _WebCabinetState extends ConsumerState<WebCabinet> {
         border: CyberColors.grid,
         fill: CyberColors.bg0,
         child: Text(
-          s.t('> todavía sin sitio publicado ni capturas.\n> cuando estén, se ven acá.',
-              '> no published site or screenshots yet.\n> once they exist, they show up here.'),
+          // Una plataforma privada no tiene un sitio propio que mostrar: sus
+          // tiendas son de cada cliente. Decirlo es mejor que prometer capturas.
+          p.private
+              ? s.t('> plataforma privada: no tiene un sitio público propio.\n> los números salen del repositorio.',
+                  '> private platform: it has no public site of its own.\n> the numbers come from the repository.')
+              : s.t('> todavía sin sitio publicado ni capturas.\n> cuando estén, se ven acá.',
+                  '> no published site or screenshots yet.\n> once they exist, they show up here.'),
           style: CyberType.mono(size: 12, color: CyberColors.text1),
         ),
       );

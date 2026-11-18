@@ -67,6 +67,14 @@ extension CityStrings on S {
         'This help comes back anytime with the ? button up top.',
       );
 
+  // La salida para quien no tiene tiempo de caminar.
+  String get quickView => t('VISTA RÁPIDA', 'QUICK VIEW');
+  String get quickViewTitle => t('¿POCO TIEMPO?', 'SHORT ON TIME?');
+  String get quickViewHint => t(
+        'Experiencia, proyectos y CV en una sola página simple, sin caminar.',
+        'Experience, projects and CV on one plain page, no walking.',
+      );
+
   String get hintMove => t(
         'CAMINÁ: RUEDA DEL MOUSE, FLECHAS O ARRASTRANDO',
         'WALK: MOUSE WHEEL, ARROWS OR DRAG',

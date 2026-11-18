@@ -17,14 +17,18 @@ import 'pixel/pixel_ui.dart';
 
 extension _DossierStrings on S {
   String get dossierTitle => t('FICHA DE MERC', 'MERC DOSSIER');
+  String get scanHintTouch => t(
+        'Arrastrá el dedo por el retrato: en la calle soy píxeles, acá abajo soy yo.',
+        'Drag a finger over the portrait: on the street I am pixels, under here it is me.',
+      );
   String get scanHint => t(
         'Pasá el cursor por el retrato: en la calle soy píxeles, acá abajo soy yo.',
         'Move the cursor over the portrait: on the street I am pixels, under here it is me.',
       );
   String get loadout => t('LOADOUT', 'LOADOUT');
   String get loadoutNote => t(
-        'Mismo merc, dos equipamientos: cambia la bio, los números, el orden de los proyectos y el CV.',
-        'Same merc, two loadouts: the bio, numbers, project order and CV change.',
+        'Mismo merc, tres equipamientos: cambia la bio, los números, el orden de los proyectos y el CV.',
+        'Same merc, three loadouts: the bio, numbers, project order and CV change.',
       );
   String get record => t('HISTORIAL', 'TRACK RECORD');
   String get channels => t('CANALES', 'CHANNELS');
@@ -60,7 +64,7 @@ class MercDossier extends ConsumerWidget {
               : _PortraitScanner(photo: person.photo!, animate: animate),
         ),
         const SizedBox(height: 10),
-        Text(s.scanHint, style: CyberType.mono(size: 11, color: CyberColors.text1)),
+        Text(context.isMobile ? s.scanHintTouch : s.scanHint, style: CyberType.mono(size: 11, color: CyberColors.text1)),
       ],
     );
 
@@ -157,7 +161,9 @@ class MercDossier extends ConsumerWidget {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 360),
+                                // En el teléfono el retrato no puede ocupar toda la primera
+                                // pantalla: el nombre y el perfil tienen que verse sin bajar.
+                                constraints: BoxConstraints(maxWidth: context.isMobile ? 230 : 360),
                                 child: portrait,
                               ),
                             ),

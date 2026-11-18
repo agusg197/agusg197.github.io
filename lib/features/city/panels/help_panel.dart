@@ -7,6 +7,7 @@ import '../../../core/theme/cyber_typography.dart';
 import '../city_panel.dart';
 import '../city_strings.dart';
 import '../pixel/pixel_ui.dart';
+import '../quick_view_link.dart';
 import '../street_layout.dart';
 
 /// "¿Qué es esto?": para quien llega sin saber qué es un portafolio ni cómo se
@@ -22,6 +23,7 @@ class HelpPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(stringsProvider);
+    final locale = ref.watch(localeProvider);
     final label = s.lotLabel;
 
     return CityPanelFrame(
@@ -86,6 +88,17 @@ class HelpPanel extends ConsumerWidget {
                   ],
                 ),
               ),
+            const SizedBox(height: 10),
+            PanelLabel(s.quickViewTitle),
+            const SizedBox(height: 8),
+            Text(s.quickViewHint, style: CyberType.body(size: 16)),
+            const SizedBox(height: 10),
+            PixelButton(
+              label: '${s.quickView} →',
+              dense: true,
+              color: CyberColors.cyan,
+              onPressed: () => openQuickView(locale),
+            ),
           ],
         ),
       ),

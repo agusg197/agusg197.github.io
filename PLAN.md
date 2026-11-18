@@ -1,6 +1,6 @@
 # Portafolio Cyberpunk — Plan de desarrollo (Flutter Web)
 
-> Estado: v1 (2026-09-17). Fases 0, 1, 2 y 3a implementadas + pasada de rendimiento.
+> Estado: v2.1 (2026-11-18). Historia: v1 (2026-09-17). Fases 0, 1, 2 y 3a implementadas + pasada de rendimiento.
 > Contenido REAL cargado desde los dos CVs y tres repos públicos.
 > Siguiente: 3b — más proyectos (el usuario dijo que va a pasar otros), datos vivos de
 > la API de GitHub, transición glitch entre rutas y despliegue.
@@ -14,6 +14,26 @@
 > home de v1) y `/#/lab` (el laboratorio de efectos) redirigen a la calle.
 
 ---
+
+## 0. v2.1 — contenido nuevo y vista rápida (2026-11-18)
+
+- **Contenido.** Inglés B2. La migración de Leadbox figura como publicada en producción, con
+  su etapa «Salida a producción». Bontà Dolce apunta a bontadolce.com y se ve en vivo dentro
+  de su máquina. Experiencia: se suma el trabajo freelance de 2026 y la torre pasa a cuatro pisos.
+- **Tres proyectos nuevos.** AquaRoute y Triage (el clasificador en modo shadow de Leadbox)
+  en el taller, cada uno con su simulación en `project_demos.dart`; Ourocom en el arcade, con
+  la máquina genérica. De Triage no se nombra al proveedor ni se muestran tickets o taxonomía.
+- **Tercer perfil: Full Stack.** Con su bio, números, skills y CV. Los seis CV (tres perfiles,
+  dos idiomas) se generan sin teléfono desde el repo del portafolio v2.
+- **Vista rápida (`/cv/`).** HTML estático generado desde el JSON, en castellano e inglés,
+  con pestañas de perfil sin JavaScript, datos estructurados e impresión limpia. Es la
+  respuesta a «no tengo tiempo de caminar una calle» y a los buscadores, que no leen un canvas.
+- **Carga.** Tipografías recortadas (1,2 MB a 260 KB), capturas en WebP (3,4 MB a 1 MB), la
+  pantalla de carga comparte los archivos de fuente con la app, y `main.dart.js` se pide
+  desde el HTML.
+- **Pendiente conocido.** El motor todavía baja de servidores de Google el CanvasKit y dos
+  fuentes de respaldo (Roboto y Noto Sans Symbols, por las flechas). Se arregla compilando
+  con `--no-web-resources-cdn` y empaquetando esas dos fuentes; no se hizo en esta vuelta.
 
 ## 0. v2 — la calle (2026-09-25)
 

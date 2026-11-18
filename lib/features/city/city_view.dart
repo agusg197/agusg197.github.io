@@ -79,9 +79,13 @@ List<Project> webFor(PortfolioData data, ProfileVariant profile) =>
 /// Los easter eggs no tienen cartelito al pasar el mouse.
 bool _isEgg(Spot s) => s.kind == SpotKind.rick || s.kind == SpotKind.lobster;
 
-/// Lo que entra en una marquesina: la primera palabra, seis letras.
-String _marquee(String name) {
-  final first = name.trim().split(RegExp(r'\s+')).first.toUpperCase();
+/// Lo que entra en una marquesina: seis letras. Sale de la primera palabra
+/// del nombre, salvo que el proyecto traiga su propia abreviatura: cortar
+/// «OUROCOM» en «OUROCO» se lee como un error.
+String _marquee(Project p) {
+  final own = p.marquee?.trim().toUpperCase();
+  final first =
+      (own != null && own.isNotEmpty) ? own : p.name.trim().split(RegExp(r'\s+')).first.toUpperCase();
   return first.length > 6 ? first.substring(0, 6) : first;
 }
 
@@ -489,7 +493,7 @@ class _CityViewState extends ConsumerState<CityView>
           cabinets: [
             for (final p in _web)
               CabinetSign(
-                name: _marquee(p.name),
+                name: _marquee(p),
                 accent: accentColor(p.accent),
                 bonta: p.id == 'bonta',
               ),

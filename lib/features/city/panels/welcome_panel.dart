@@ -8,6 +8,7 @@ import '../../../core/theme/cyber_typography.dart';
 import '../city_panel.dart';
 import '../city_strings.dart';
 import '../pixel/pixel_ui.dart';
+import '../quick_view_link.dart';
 import '../street_layout.dart';
 
 /// La bienvenida de la primera visita: quién soy en una línea, qué es esto,
@@ -25,6 +26,7 @@ class WelcomePanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(stringsProvider);
+    final locale = ref.watch(localeProvider);
     final steps = s.welcomeSteps(touch: context.isMobile);
 
     return CityPanelFrame(
@@ -95,13 +97,29 @@ class WelcomePanel extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 26),
-            PixelButton(
-              label: s.welcomeStart,
-              filled: true,
-              autofocus: true,
-              color: CyberColors.yellow,
-              onPressed: onClose,
+            Wrap(
+              spacing: 12,
+              runSpacing: 10,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                PixelButton(
+                  label: s.welcomeStart,
+                  filled: true,
+                  autofocus: true,
+                  color: CyberColors.yellow,
+                  onPressed: onClose,
+                ),
+                // Quien viene a contratar suele tener dos minutos: que la
+                // salida esté al lado de la entrada.
+                PixelButton(
+                  label: '${s.quickView} →',
+                  color: CyberColors.cyan,
+                  onPressed: () => openQuickView(locale),
+                ),
+              ],
             ),
+            const SizedBox(height: 8),
+            Text('${s.quickView}: ${s.quickViewHint}', style: CyberType.mono(size: 11, color: CyberColors.text1)),
             const SizedBox(height: 14),
             Text(s.welcomeLater, style: CyberType.mono(size: 11, color: CyberColors.text2)),
           ],

@@ -8,8 +8,8 @@ import '../../core/theme/cyber_typography.dart';
 import '../../data/models/portfolio.dart';
 import 'pixel/pixel_ui.dart';
 
-/// El botón del CV. Hay un CV por perfil (Flutter y AI Engineer), así que en
-/// vez de bajar a ciegas el del perfil activo, se despliega y muestra los dos:
+/// El botón del CV. Hay un CV por perfil (Flutter, AI Engineer y Full Stack), así que en
+/// vez de bajar a ciegas el del perfil activo, se despliega y los muestra todos:
 /// para qué puesto es cada uno, en qué idioma está y cuál corresponde a lo que
 /// se está mirando. Con un solo CV, baja directo.
 ///
@@ -95,8 +95,8 @@ class _CvChooserState extends ConsumerState<CvChooser> {
               children: [
                 Text(
                   s.t(
-                    'Tengo uno para cada tipo de puesto. Bajá el que te sirva, o los dos.',
-                    'I have one for each kind of role. Grab the one you need, or both.',
+                    'Tengo uno para cada tipo de puesto. Bajá el que te sirva, o todos.',
+                    'I have one for each kind of role. Grab the one you need, or all of them.',
                   ),
                   style: CyberType.body(size: 15, color: CyberColors.text0),
                 ),

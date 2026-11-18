@@ -1,11 +1,11 @@
 {
-    "name": "AGUST\u00cdN // Flutter & AI Engineer",
+    "name": "Agust\u00edn Guti\u00e9rrez // Flutter, Full Stack & AI Engineer",
     "short_name": "AGUST\u00cdN",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#07070C",
     "theme_color": "#07070C",
-    "description": "Portafolio de Agust\u00edn: Flutter, Windows y sistemas con LLM.",
+    "description": "Portafolio de Agust\u00edn Guti\u00e9rrez: apps con Flutter, web full stack y sistemas con LLM.",
     "orientation": "any",
     "prefer_related_applications": false,
     "icons": [

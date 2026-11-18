@@ -37,10 +37,16 @@ entrada de texto: el visitante escribe algo suyo y ve qué le hace cada etapa. E
 de preguntas de Echo, por ejemplo, es el mismo criterio que corre en la app de escritorio,
 portado tal cual. Todo local, sin una sola llamada a ninguna API, y la pantalla lo dice.
 
-**Dos perfiles, un contenido.** El mismo trabajo contado como Flutter y como AI Engineer:
-cambian la biografía, los números, el orden de los proyectos, las skills y el CV que se
-descarga. El cambio se anuncia con un barrido, porque una página que se reescribe entera
-sin avisar parece rota.
+**Tres perfiles, un contenido.** El mismo trabajo contado como Flutter, como AI Engineer y
+como Full Stack: cambian la biografía, los números, el orden de los proyectos, las skills y
+el CV que se descarga, en castellano o en inglés. El cambio se anuncia con un barrido, porque
+una página que se reescribe entera sin avisar parece rota.
+
+**Una vista rápida para quien no tiene tiempo.** [`/cv/`](https://agusg197.github.io/cv/) es
+el mismo contenido en una sola página de HTML simple, sin Flutter: carga al instante, la leen
+los buscadores y se puede imprimir. Se genera desde el mismo JSON con
+`python tool/build_vista_rapida.py`, y un test frena el deploy si quedó vieja. Se llega desde
+la pantalla de carga, la bienvenida y la ayuda.
 
 **Se pregunta el idioma.** En la primera visita, un panel ofrece castellano e inglés
 escrito en los dos: preguntar en uno solo ya es elegir por el visitante. Al pasar el
@@ -111,7 +117,7 @@ puntual, como `taller-trino`).
 
 ```bash
 flutter analyze   # sin issues
-flutter test      # costo de dibujo, layout de la calle, el port de Bontà y los textos del taller
+flutter test      # costo de dibujo, layout de la calle, el port de Bontà, los textos del taller y la vista rápida
 ```
 
 ---
@@ -119,7 +125,7 @@ flutter test      # costo de dibujo, layout de la calle, el port de Bontà y los
 ## El contenido vive en un JSON
 
 Nada del contenido está escrito en el código. Todo sale de
-[`assets/data/portfolio.json`](assets/data/portfolio.json): la persona, los dos perfiles
+[`assets/data/portfolio.json`](assets/data/portfolio.json): la persona, los tres perfiles
 con sus skills y CV, la experiencia, y los proyectos con su recorrido, su tabla de
 resultados y sus capturas. Cada texto es un par `{es, en}`.
 
@@ -135,6 +141,9 @@ su sitio en vivo si `embeddable` está en `true`. Solo hace falta tocar Dart si 
 trae una simulación nueva, que vive en
 [`lib/features/projects/project_demos.dart`](lib/features/projects/project_demos.dart).
 
+Después de tocar el JSON hay que regenerar la vista rápida:
+`python tool/build_vista_rapida.py`. `test/vista_rapida_test.dart` falla si no se hizo.
+
 ---
 
 ## Herramientas
@@ -147,7 +156,10 @@ Scripts que no son parte del sitio pero lo alimentan:
 | `tool/build_project_briefs.py` | arma una ficha en PDF por proyecto, en inglés |
 | `tool/render_icons.py` | genera el favicon y los íconos de la PWA |
 | `tool/render_og.dart` | dibuja `web/og.png` con el pintor de la calle: `flutter test tool/render_og.dart` |
-| `tool/cv_sin_telefono.py` | publica los CV sin el teléfono |
+| `tool/build_vista_rapida.py` | genera la vista rápida (`web/cv/`) desde el JSON |
+| `tool/subset_fonts.py` | recorta las tipografías a los caracteres que usa el sitio: de 1,2 MB a 260 KB |
+| `tool/optimizar_capturas.py` | pasa las capturas de PNG a WebP y corrige las rutas del JSON |
+| `tool/cv_sin_telefono.py` | quitaba el teléfono de los CV viejos; los de ahora ya se generan sin él (ver `DEPLOY.md`) |
 | `tool/render_advisor_shots.py` | capturas de terminal para el proyecto que no tiene pantallas |
 | `tool/redact_leadbox_shots.py` | tapa marca e identificadores en las capturas de un proyecto laboral |
 

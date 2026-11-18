@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://agusg197.github.io/</loc>
+  </url>
+  <url>
+    <loc>https://agusg197.github.io/cv/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://agusg197.github.io/cv/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://agusg197.github.io/cv/en/"/>
+  </url>
+  <url>
+    <loc>https://agusg197.github.io/cv/en/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://agusg197.github.io/cv/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://agusg197.github.io/cv/en/"/>
+  </url>
+</urlset>

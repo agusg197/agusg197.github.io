@@ -475,6 +475,7 @@ class Project {
     this.liveUrl,
     this.embeddable = false,
     this.plain,
+    this.marquee,
   });
 
   factory Project.fromJson(Map<String, dynamic> j) {
@@ -510,6 +511,7 @@ class Project {
       liveUrl: url(j['liveUrl']),
       embeddable: j['embeddable'] == true,
       plain: j['plain'] == null ? null : ProjectPlain.fromJson(_map(j['plain'])),
+      marquee: url(j['marquee']),
     );
   }
 
@@ -545,6 +547,10 @@ class Project {
 
   /// La explicación simple. Sin ella el taller usa la descripción técnica.
   final ProjectPlain? plain;
+
+  /// Cómo se escribe en la marquesina de su máquina del arcade, cuando el
+  /// nombre no entra en seis letras. Null usa la primera palabra del nombre.
+  final String? marquee;
 
   bool get isWeb => kind == 'web';
 

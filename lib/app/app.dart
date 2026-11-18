@@ -21,7 +21,7 @@ class CyberApp extends ConsumerWidget {
     final settings = ref.watch(effectsProvider);
 
     return MaterialApp.router(
-      title: 'AGUST\u00cdN // Flutter & AI Engineer',
+      title: 'Agust\u00edn Guti\u00e9rrez // Flutter, Full Stack & AI Engineer',
       debugShowCheckedModeBanner: false,
       theme: buildCyberTheme(),
       routerConfig: router,

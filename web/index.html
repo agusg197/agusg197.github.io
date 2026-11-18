@@ -5,7 +5,11 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Portafolio de Agustín, desarrollador de apps e inteligencia artificial. Es una calle cyberpunk en pixel art: caminala, entrá a cada edificio y probá lo que hice. No hace falta saber programar.">
+  <meta name="description" content="Portafolio de Agustín Gutiérrez, desarrollador Flutter, Full Stack y AI Engineer. Es una calle cyberpunk en pixel art: caminala, entrá a cada edificio y probá lo que hice. También hay una vista rápida con experiencia, proyectos y CV.">
+  <link rel="canonical" href="https://agusg197.github.io/">
+  <!-- La vista rápida: el mismo contenido en HTML simple, para quien tiene
+       poco tiempo y para los buscadores (tool/build_vista_rapida.py). -->
+  <link rel="alternate" type="text/html" href="https://agusg197.github.io/cv/" title="Vista rápida">
   <meta name="theme-color" content="#07070C">
 
   <!-- Open Graph: lo que muestran Discord, WhatsApp, LinkedIn, etc. al pegar
@@ -14,7 +18,7 @@
   <meta property="og:site_name" content="agusg197.github.io">
   <meta property="og:url" content="https://agusg197.github.io/">
   <meta property="og:locale" content="es_AR">
-  <meta property="og:title" content="Agustín · Apps e inteligencia artificial">
+  <meta property="og:title" content="Agustín Gutiérrez · Flutter, Full Stack y AI Engineer">
   <meta property="og:description" content="Mi portafolio es una calle cyberpunk en pixel art. Caminala y entrá a cada edificio: apps que probás paso a paso, una tienda web donde armás un pedido y mi experiencia piso por piso. No hace falta saber programar.">
   <!-- La calle, 1200x630, dibujada por el mismo pintor del sitio
        (flutter test tool/render_og.dart). Va con URL absoluta: Discord y
@@ -24,7 +28,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Calle cyberpunk en pixel art: el cartel AGUSTIN, un merc barbudo en la vereda, un afiche de disponible para contrato y Clawd saludando en la vidriera">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Agustín · Apps e inteligencia artificial">
+  <meta name="twitter:title" content="Agustín Gutiérrez · Flutter, Full Stack y AI Engineer">
   <meta name="twitter:description" content="Mi portafolio es una calle cyberpunk en pixel art: caminala, entrá a cada edificio y probá lo que hice. No hace falta saber programar.">
   <meta name="twitter:image" content="https://agusg197.github.io/og.png">
 
@@ -34,16 +38,40 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <!-- La pantalla de carga usa las mismas fuentes que la app, servidas desde acá:
-       una visita no depende de que Google responda. -->
+  <!-- La pantalla de carga usa los mismos archivos de fuente que la app (los
+       que empaqueta Flutter): se bajan una sola vez y sirven para las dos. -->
   <style>
     @font-face { font-family: "Share Tech Mono"; font-display: block;
-      src: url("fonts/ShareTechMono-Regular.ttf") format("truetype"); }
+      src: url("assets/assets/google_fonts/ShareTechMono-Regular.ttf") format("truetype"); }
     @font-face { font-family: "Chakra Petch"; font-weight: 700; font-display: block;
-      src: url("fonts/ChakraPetch-Bold.ttf") format("truetype"); }
+      src: url("assets/assets/google_fonts/ChakraPetch-Bold.ttf") format("truetype"); }
   </style>
 
-  <title>AGUSTÍN // Flutter &amp; AI Engineer</title>
+  <title>Agustín Gutiérrez // Flutter, Full Stack &amp; AI Engineer</title>
+
+  <!-- Datos estructurados: quién es el dueño del sitio, para los buscadores. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "agusg197.github.io",
+    "url": "https://agusg197.github.io/",
+    "inLanguage": ["es", "en"],
+    "author": {
+      "@type": "Person",
+      "name": "Renzo Agustín Gutiérrez",
+      "alternateName": "agusg197",
+      "jobTitle": ["Flutter Developer", "Full Stack Engineer", "AI Engineer"],
+      "url": "https://agusg197.github.io/cv/",
+      "address": { "@type": "PostalAddress", "addressLocality": "Córdoba", "addressCountry": "AR" },
+      "sameAs": ["https://github.com/agusg197", "https://linkedin.com/in/agusg197"]
+    }
+  }
+  </script>
+
+  <!-- El motor pide este archivo apenas arranca: pedirlo desde acá lo baja en
+       paralelo con el resto, sin esperar a flutter_bootstrap.js. -->
+  <link rel="preload" href="main.dart.js" as="script">
   <link rel="manifest" href="manifest.json">
 
   <style>
@@ -146,15 +174,33 @@
       position: absolute; left: 14px; top: 50%; transform: translateY(-50%) rotate(180deg);
       writing-mode: vertical-rl; font-size: 10px; letter-spacing: .4em; color: #4B5273;
     }
+
+    /* La salida para quien no quiere esperar ni caminar: va fuera del splash
+       (que es decorativo y está oculto a los lectores de pantalla). */
+    #quick {
+      position: fixed; z-index: 10000; right: clamp(16px, 4vw, 40px); bottom: 26px;
+      font-family: 'Share Tech Mono', monospace; font-size: 13px; letter-spacing: .06em;
+      color: #07070C; background: #00F0FF; padding: 10px 14px; text-decoration: none;
+      transition: opacity .35s steps(3, end);
+    }
+    #quick:hover, #quick:focus-visible { background: #FCEE0A; outline: none; }
+    #quick.hide { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
+  <a id="quick" href="cv/">¿Poco tiempo? Vista rápida → / Quick view →</a>
+  <noscript>
+    <p style="position:fixed;z-index:10001;left:0;right:0;top:0;margin:0;padding:14px 18px;background:#FCEE0A;color:#07070C;font-family:monospace">
+      Este sitio necesita JavaScript. La <a href="cv/">vista rápida</a> funciona sin él. /
+      This site needs JavaScript. The <a href="cv/en/">quick view</a> works without it.
+    </p>
+  </noscript>
   <div id="splash" aria-hidden="true">
     <div class="hazard top"></div>
     <div class="grid"></div>
     <div class="hex" id="hex"></div>
     <div class="sector"></div>
-    <div class="side">PORTFOLIO // v1.0 // 2026</div>
+    <div class="side">PORTFOLIO // v2.1 // 2026</div>
 
     <div class="stamp">// SYSTEM BOOT</div>
     <div class="logo-wrap">
@@ -200,7 +246,11 @@
         if (!s) return;
         document.body.classList.add('ready');
         s.classList.add('hide');
-        setTimeout(function () { s.remove(); }, 400);
+        // El enlace a la vista rápida se va con el splash: adentro del sitio
+        // está en la bienvenida y en la ayuda.
+        var q = document.getElementById('quick');
+        if (q) q.classList.add('hide');
+        setTimeout(function () { s.remove(); if (q) q.remove(); }, 400);
       }
       window.addEventListener('flutter-first-frame', dismiss);
       // Safety net: if the engine never reports a frame, say so instead of
